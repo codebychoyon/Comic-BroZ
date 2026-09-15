@@ -1,337 +1,556 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Comic Bro'Z - Home{% endblock %}
-
-{% block meta %}
-<meta name="description" content="Comic Bro'Z - Your one-stop destination for superhero comics and graphic novels.">
-<meta name="keywords" content="comics, superhero, graphic novels, Comic Bro'Z">
-{% endblock %}
-
-{% block content %}
-<div class="hero_area">
-    <section class="comic-slider">
-        <div class="comic-slide active">
-            <div class="content">
-                <div class="text">
-                    <h1>Enter the Comic Verse</h1>
-                    <p>Discover stories that leap off the page! Dive into our latest adventures.</p>
-                    <a href="{% url 'comics' %}" class="btn">Buy Now</a>
-                </div>
-                <div class="hero-img">
-                    <img src="{% static 'edgecut/images/101.png' %}" alt="Superhero illustration">
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-
-<!-- Comic Section -->
-<section class="furniture_section layout_padding" data-aos="fade-up">
-    <div class="container">
-        <div class="heading_container">
-            <h2>Latest Comics</h2>
-            <p>Discover our newest comic releases</p>
-        </div>
-        <div class="row">
-            {% for comic in comics|slice:":6" %}
-            <div class="col-md-6 col-lg-4">
-                <div class="box" data-aos="zoom-in">
-                    <div class="img-box">
-                        {% if comic.image %}
-                        <img src="{{ comic.image.url }}" alt="{{ comic.title|default:'Comic' }}">
-                        {% else %}
-                        <img src="{% static 'edgecut/images/default.png' %}" alt="{{ comic.title|default:'Comic' }}">
-                        {% endif %}
-                    </div>
-                    <div class="detail-box">
-                        <h5>{{ comic.title|default:"Untitled Comic" }}</h5>
-                        <div class="price_box">
-                            <h6 class="price_heading"><span>$</span> {{ comic.price|default:"0.00" }}</h6>
-                            {% if comic.id or comic.pk %}
-                            <a href="{% url 'comic_detail' comic.id|default:comic.pk %}">Buy Now</a>
-                            {% else %}
-                            <a href="{% url 'comics' %}">View Comics</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12">
-                <p>No comics available at the moment.</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<!-- About Section -->
-<section class="about_section layout_padding" data-aos="fade-up">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="img-box">
-                    <img src="{% static 'edgecut/images/201.png' %}" alt="About Comic Bro'Z illustration">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="detail-box">
-                    <div class="heading_container">
-                        <h2>Character Cards</h2>
-                    </div>
-                    <p>
-                        Dive into the world of legendary heroes! Discover their iconic abilities, signature moves, and
-                        epic battles through our exclusive character cards, each packed with thrilling details and
-                        dynamic flair.
-                    </p>
-                    <a href="{% url 'character_card' %}">Dive</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Blog Section -->
-<section class="blog_section layout_padding" data-aos="fade-up">
-    <div class="container">
-        <div class="heading_container">
-            <h2>Latest Blogs</h2>
-        </div>
-        <div class="blog-grid">
-            {% for blog in blogs|slice:":3" %}
-            <div class="blog-card" data-aos="zoom-in">
-                <div class="img-box">
-                    {% if blog.image %}
-                    <img src="{{ blog.image.url }}" alt="{{ blog.title|default:'Blog' }}">
-                    {% else %}
-                    <img src="{% static 'edgecut/images/default-blog.jpg' %}" alt="{{ blog.title|default:'Blog' }}">
-                    {% endif %}
-                </div>
-                <div class="detail-box">
-                    <h5>{{ blog.title|default:"Untitled Blog" }}</h5>
-                    <p>{{ blog.content|truncatewords:20|default:"No content available." }}</p>
-                    <a href="{% url 'blog_detail' blog.id|default:blog.pk %}" class="btn btn-primary read-more-btn">Read More</a>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12">
-                <p>No blogs available at the moment.</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<!-- Contact Section -->
-<section class="contact_section layout_padding" data-aos="fade-up">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form_container">
-                    <div class="heading_container">
-                        <h2>Contact Us</h2>
-                    </div>
-                    <form action="{% url 'contact' %}" method="post">
-                        {% csrf_token %}
-                        <div>
-                            <input type="text" placeholder="Your Name" name="name" required />
-                        </div>
-                        <div>
-                            <input type="text" placeholder="Phone Number" name="phone" />
-                        </div>
-                        <div>
-                            <input type="email" placeholder="Email" name="email" required />
-                        </div>
-                        <div>
-                            <input type="text" class="message-box" placeholder="Message" name="message" required
-                                maxlength="200" />
-                            <small id="messageCounter" class="form-text text-muted">0/200 characters</small>
-                        </div>
-                        <div class="btn_box">
-                            <button type="submit">SEND</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="map_container">
-                    <div class="map">
-                        <img src="https://assets.dochipo.com/editor/animations/contact-us/f38f563a-53fc-4527-a085-eeb2dba0c84f.gif"
-                            alt="Animated contact illustration" style="width:100%; height:auto;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
+{% block extra_css %}
 <style>
-    /* Comic Section Styles (from comic.html) */
-    .furniture_section .box {
-        height: 440px; /* Fixed height for uniformity */
-        display: flex;
-        flex-direction: column;
-        border-radius: 8px;
-        overflow: hidden;
+    /* Hero Section */
+    .hero-banner {
+        margin-top: 30px;
         position: relative;
-        transition: all 0.3s ease;
-        perspective: 1000px; /* For 3D effect */
-    }
-    .furniture_section .box:hover {
-        transform: scale(1.02);
-        z-index: 1;
-    }
-    .furniture_section .img-box {
-        height: 280px; /* Adjusted for new layout */
+        border-radius: 20px;
         overflow: hidden;
-        position: relative;
+        height: 60vh;
+        min-height: 450px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        background: url('https://images.unsplash.com/photo-1612036782180-6f0b6ce846ce?q=80&w=2070&auto=format&fit=crop') center/cover;
     }
-    .furniture_section .img-box img {
-        max-height: 100%;
-        max-width: 100%;
-        object-fit: contain; /* Maintains original image aspect */
-        transition: transform 0.4s ease;
+    .hero-banner::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(to right, rgba(10, 10, 12, 1) 0%, rgba(10, 10, 12, 0.4) 100%);
     }
-    .furniture_section .box:hover .img-box img {
-        transform: rotate(2deg) scale(1.1); /* Subtle tilt effect */
-    }
-    .furniture_section .detail-box {
-        flex: 1;
-        padding: 15px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+    .hero-content {
         position: relative;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent); /* Subtle gradient */
+        z-index: 10;
+        padding: 50px;
+        width: 100%;
+        max-width: 600px;
     }
-    .furniture_section .detail-box h5 {
-        font-size: 1.15rem;
-        font-weight: 600;
-        margin-bottom: 12px;
-        text-align: center;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        transition: transform 0.3s ease;
+    .hero-title {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+        background: linear-gradient(90deg, #fff, var(--accent-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
-    .furniture_section .box:hover .detail-box h5 {
-        transform: translateY(-5px);
+    .hero-text {
+        font-size: 1.1rem;
+        color: #ddd;
+        margin-bottom: 30px;
     }
-    .furniture_section .price_box {
+
+    /* Section Titles */
+    .section-title {
+        font-size: 2.2rem;
+        margin: 60px 0 30px;
+        border-left: 5px solid var(--accent-red);
+        padding-left: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 12px;
-        padding: 0 10px;
     }
-    .furniture_section .price_box h6 {
+    .section-link {
         font-size: 1rem;
+        color: var(--accent-blue);
+        text-transform: uppercase;
+        letter-spacing: 1px;
         font-weight: 600;
+        font-family: 'Inter', sans-serif;
     }
-    .furniture_section .price_box a {
-        padding: 8px 18px;
-        border-radius: 30px;
+    .section-link:hover {
+        color: #fff;
         text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 500;
-        position: relative;
-        overflow: hidden;
-    }
-    .furniture_section .price_box a::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.2);
-        transition: left 0.3s ease;
-    }
-    .furniture_section .price_box a:hover::before {
-        left: 0;
-    }
-    @media (max-width: 768px) {
-        .furniture_section .box {
-            height: 400px;
-        }
-        .furniture_section .img-box {
-            height: 240px;
-        }
-        .furniture_section .detail-box h5 {
-            font-size: 1rem;
-        }
     }
 
-    /* Blog Section Styles (from blog.html) */
-    .blog-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-    }
-    .blog-card {
-        background: #fff;
+    /* Cards for Comics & Movies */
+    .item-card {
+        background: var(--bg-card);
         border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: transform 0.3s, box-shadow 0.3s;
+        margin-bottom: 30px;
+        text-align: center;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        transition: transform 0.3s;
     }
-    .blog-card:hover {
-        transform: translateY(-5px);
+    .item-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(255, 42, 77, 0.15);
+        border-color: rgba(255, 42, 77, 0.3);
     }
-    .blog_section .img-box img {
+    .item-img-box {
+        height: 250px;
+        overflow: hidden;
+        position: relative;
+    }
+    .item-img-box img {
         width: 100%;
-        height: auto;
+        height: 100%;
         object-fit: cover;
-        display: block;
-        border-bottom: 1px solid #eee;
+        transition: transform 0.5s ease;
     }
-    .blog_section .detail-box {
-        padding: 1rem;
+    .item-card:hover .item-img-box img {
+        transform: scale(1.1);
+    }
+    .item-detail {
+        padding: 20px;
+        flex-grow: 1;
         display: flex;
         flex-direction: column;
-        flex-grow: 1;
+        justify-content: space-between;
     }
-    .blog_section .detail-box h5 {
-        font-family: 'Bangers', cursive;
-        font-size: 1.5rem;
-        color: #2a2a3b;
-        margin-bottom: 0.5rem;
+    .item-title {
+        font-size: 1.2rem;
+        color: var(--text-main);
+        margin-bottom: 15px;
+        font-family: 'Outfit', sans-serif;
     }
-    .blog_section .detail-box p {
-        flex-grow: 1;
-        font-size: 0.95rem;
-        color: #444;
-        margin-bottom: 1rem;
+    .btn-outline-custom {
+        border: 1px solid var(--accent-blue);
+        color: var(--accent-blue);
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        transition: all 0.3s;
     }
-    .read-more-btn {
-        align-self: flex-start;
-        background-color: #ff4d6d;
-        border: none;
-        color: rgb(255, 255, 255);
-        font-weight: bold;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        transition: background-color 0.3s ease;
+    .btn-outline-custom:hover {
+        background: var(--accent-blue);
+        color: var(--bg-dark);
+        text-decoration: none;
     }
-    .read-more-btn:hover {
-        background-color: #ffda79;
-        color: rgb(5, 5, 5);
+
+    /* Character Cards Teaser */
+    .char-card-section {
+        background: linear-gradient(135deg, rgba(20, 20, 25, 1) 0%, rgba(40, 10, 15, 1) 100%);
+        border-radius: 20px;
+        padding: 50px;
+        margin-top: 60px;
+        border: 1px solid rgba(255,42,77,0.2);
+    }
+
+    /* Blog / News Grid */
+    .news-list-item {
+        display: flex;
+        background: var(--bg-card);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: all 0.3s;
+    }
+    .news-list-item:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: var(--accent-blue);
+    }
+    .news-list-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+    }
+    .news-list-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .news-list-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    .news-list-title a {
+        color: var(--text-main);
+        text-decoration: none;
+    }
+    .news-list-title a:hover {
+        color: var(--accent-red);
+    }
+    .news-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    /* Latest News Section (Continuous Marquee with Spidey Web) */
+    .spidey-slider-wrapper {
+        position: relative;
+        padding-left: 80px; /* Space for Spidey */
+        padding-top: 20px;  /* Space above the cards for the web */
+        margin-bottom: 20px;
+    }
+    .spidey-character {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 70px;
+        height: 70px;
+        background: url('https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=200&auto=format&fit=crop') center/cover;
+        border-radius: 50%;
+        border: 3px solid var(--accent-red);
+        box-shadow: 0 0 15px var(--accent-red), 0 0 30px var(--accent-blue);
+        z-index: 10;
+    }
+    .spidey-web-line {
+        position: absolute;
+        left: 35px;
+        top: 35px; /* Center of Spidey */
+        width: calc(100% - 35px);
+        height: 2px;
+        background: #fff;
+        box-shadow: 0 0 8px #fff, 0 0 15px var(--accent-blue);
+        z-index: 5;
+        pointer-events: none;
+    }
+    .news-horizontal-scroll {
+        display: flex;
+        overflow: hidden;
+        width: 100%;
+        padding-bottom: 15px;
+        padding-top: 30px; /* To prevent cutting off the hanging strings */
+        mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    }
+    .news-track {
+        display: flex;
+        gap: 20px;
+        width: max-content;
+        animation: scroll-left 25s linear infinite;
+    }
+    .news-track:hover {
+        animation-play-state: paused;
+    }
+    @keyframes scroll-left {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .news-card-mini {
+        min-width: 280px;
+        max-width: 280px;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        scroll-snap-align: start;
+        transition: transform 0.3s;
+        position: relative;
+        z-index: 6;
+    }
+    .news-card-mini::before {
+        content: '';
+        position: absolute;
+        top: -45px;
+        left: 50%;
+        width: 2px;
+        height: 45px;
+        background: #fff;
+        box-shadow: 0 0 5px #fff;
+        transform: rotate(20deg);
+        transform-origin: bottom center;
+        z-index: -1;
+    }
+    .news-card-mini:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent-red);
+    }
+    .news-card-mini img {
+        height: 140px;
+        object-fit: cover;
+        border-radius: 12px 12px 0 0;
+    }
+    .news-card-mini .card-body {
+        padding: 15px;
+    }
+    .news-card-mini h6 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+    }
+    .news-card-mini p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 0;
+    }
+
+    /* AdSense Placeholder */
+    .ad-placeholder {
+        background: rgba(255,255,255,0.02);
+        border: 1px dashed rgba(255,255,255,0.2);
+        color: var(--text-muted);
+        text-align: center;
+        padding: 30px;
+        border-radius: 10px;
+        margin-top: 20px;
     }
 </style>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-    // Contact Form Character Counter
-    document.querySelector('.message-box').addEventListener('input', function () {
-        const count = this.value.length;
-        document.getElementById('messageCounter').textContent = `${count}/200 characters`;
-    });
-</script>
+{% block content %}
+<div class="container">
+    
+    <!-- HERO SECTION -->
+    <div class="hero-banner" data-aos="fade-in">
+        <div class="hero-content">
+            <h1 class="hero-title">Enter the Comic Verse</h1>
+            <p class="hero-text">Discover stories that leap off the page! Dive into our latest comic adventures, track your favorite superhero movies, and join the ultimate fan community.</p>
+            <a href="{% url 'comics' %}" class="btn-premium">Explore Collection</a>
+        </div>
+    </div>
+
+    <!-- LATEST OFFICIAL NEWS -->
+    <div class="section-title" data-aos="fade-up" style="margin-top: 40px; margin-bottom: 20px;">
+        <span>Latest News</span>
+    </div>
+    
+    <div class="spidey-slider-wrapper" data-aos="fade-up" data-aos-delay="100">
+        <!-- Spidey Web Elements -->
+        <div class="spidey-character"></div>
+        <div class="spidey-web-line"></div>
+
+        <div class="news-horizontal-scroll">
+        <div class="news-track">
+            <!-- Mockup News Item 1 -->
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1534809027769-b00d750a6bac?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>James Gunn Teases New Superman Suit</h6>
+                    <p>DC Studios | 1 Hour Ago</p>
+                </div>
+            </div>
+            <!-- Mockup News Item 2 -->
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1620075267033-09d12ce47b4d?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>Spider-Man 4 Filming Starts Next Spring</h6>
+                    <p>Marvel Studios | 3 Hours Ago</p>
+                </div>
+            </div>
+            <!-- Mockup News Item 3 -->
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1588497859490-85d1c17db96d?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>The Boys Season 5 Release Date Confirmed</h6>
+                    <p>Amazon Prime | 5 Hours Ago</p>
+                </div>
+            </div>
+            <!-- Mockup News Item 4 -->
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1549416878-b9ca95e1bbcd?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>Image Comics Announces Massive Crossover Event</h6>
+                    <p>Comics | 12 Hours Ago</p>
+                </div>
+            </div>
+            <!-- Mockup News Item 5 -->
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1612036782807-6c2e3998bb36?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>Venom: The Last Dance Box Office Projections</h6>
+                    <p>Box Office | 1 Day Ago</p>
+                </div>
+            </div>
+
+            <!-- DUPLICATED ITEMS FOR SEAMLESS LOOP -->
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1534809027769-b00d750a6bac?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>James Gunn Teases New Superman Suit</h6>
+                    <p>DC Studios | 1 Hour Ago</p>
+                </div>
+            </div>
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1620075267033-09d12ce47b4d?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>Spider-Man 4 Filming Starts Next Spring</h6>
+                    <p>Marvel Studios | 3 Hours Ago</p>
+                </div>
+            </div>
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1588497859490-85d1c17db96d?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>The Boys Season 5 Release Date Confirmed</h6>
+                    <p>Amazon Prime | 5 Hours Ago</p>
+                </div>
+            </div>
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1549416878-b9ca95e1bbcd?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>Image Comics Announces Massive Crossover Event</h6>
+                    <p>Comics | 12 Hours Ago</p>
+                </div>
+            </div>
+            <div class="news-card-mini">
+                <img src="https://images.unsplash.com/photo-1612036782807-6c2e3998bb36?q=80&w=600&auto=format&fit=crop" alt="News">
+                <div class="card-body">
+                    <h6>Venom: The Last Dance Box Office Projections</h6>
+                    <p>Box Office | 1 Day Ago</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMICS SECTION -->
+    <div class="section-title" data-aos="fade-up">
+        <span>Trending Comics</span>
+        <a href="{% url 'comics' %}" class="section-link">View All Comics <i class="fa fa-arrow-right"></i></a>
+    </div>
+    <div class="row">
+        <!-- Mockup Comic 1 -->
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="item-card">
+                <div class="item-img-box">
+                    <img src="https://images.unsplash.com/photo-1612036782807-6c2e3998bb36?q=80&w=1000&auto=format&fit=crop" alt="Comic">
+                </div>
+                <div class="item-detail">
+                    <h5 class="item-title">Spider-Man: Maximum Carnage</h5>
+                    <a href="#" class="btn-outline-custom">Buy on Amazon</a>
+                </div>
+            </div>
+        </div>
+        <!-- Mockup Comic 2 -->
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="item-card">
+                <div class="item-img-box">
+                    <img src="https://images.unsplash.com/photo-1549416878-b9ca95e1bbcd?q=80&w=1000&auto=format&fit=crop" alt="Comic">
+                </div>
+                <div class="item-detail">
+                    <h5 class="item-title">Batman: The Dark Knight Returns</h5>
+                    <a href="#" class="btn-outline-custom">Buy on Amazon</a>
+                </div>
+            </div>
+        </div>
+        <!-- Mockup Comic 3 -->
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="item-card">
+                <div class="item-img-box">
+                    <img src="https://images.unsplash.com/photo-1588497859490-85d1c17db96d?q=80&w=1000&auto=format&fit=crop" alt="Comic">
+                </div>
+                <div class="item-detail">
+                    <h5 class="item-title">The Flash: Flashpoint</h5>
+                    <a href="#" class="btn-outline-custom">Buy on TFAW</a>
+                </div>
+            </div>
+        </div>
+        <!-- Mockup Comic 4 -->
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="item-card">
+                <div class="item-img-box">
+                    <img src="https://images.unsplash.com/photo-1620075267033-09d12ce47b4d?q=80&w=1000&auto=format&fit=crop" alt="Comic">
+                </div>
+                <div class="item-detail">
+                    <h5 class="item-title">Venom: Lethal Protector</h5>
+                    <a href="#" class="btn-outline-custom">Buy on ComiXology</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOVIES SECTION -->
+    <div class="section-title" data-aos="fade-up">
+        <span>Featured Movies</span>
+        <a href="{% url 'search_movie' %}" class="section-link">View All Movies <i class="fa fa-arrow-right"></i></a>
+    </div>
+    <div class="row">
+        <!-- Mockup Movie 1 -->
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="item-card">
+                <div class="item-img-box">
+                    <img src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=1000&auto=format&fit=crop" alt="Movie">
+                </div>
+                <div class="item-detail">
+                    <h5 class="item-title">Deadpool & Wolverine</h5>
+                    <a href="#" class="btn-outline-custom" style="border-color: #ff2a4d; color: #ff2a4d;">Watch Trailer</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="item-card">
+                <div class="item-img-box">
+                    <img src="https://images.unsplash.com/photo-1635805737707-575885ab0820?q=80&w=1000&auto=format&fit=crop" alt="Movie">
+                </div>
+                <div class="item-detail">
+                    <h5 class="item-title">Spider-Man: Across The Spider-Verse</h5>
+                    <a href="#" class="btn-outline-custom" style="border-color: #ff2a4d; color: #ff2a4d;">Watch Trailer</a>
+                </div>
+            </div>
+        </div>
+        <!-- AdSense Horizontal Placeholder -->
+        <div class="col-md-6" data-aos="fade-in">
+            <div class="ad-placeholder h-100 d-flex align-items-center justify-content-center">
+                <div>
+                    <h5 class="text-muted">Google AdSense Space</h5>
+                    <p class="mb-0">Horizontal Banner (728x90)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHARACTER CARDS TEASER -->
+    <div class="char-card-section" data-aos="zoom-in">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.5rem; color: #fff;">Legendary Character Cards</h2>
+                <p style="color: #ccc; font-size: 1.1rem;">Collect, compare, and battle stats with our exclusive Character Cards. Who is stronger? Who is more cunning? Build your collection now.</p>
+                <a href="{% url 'character_card' %}" class="btn-premium mt-3 d-inline-block">View Cards</a>
+            </div>
+            <div class="col-md-4 text-center">
+                <img src="https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=500&auto=format&fit=crop" alt="Card Illustration" style="border-radius: 10px; width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: rotate(10deg);">
+            </div>
+        </div>
+    </div>
+
+    <!-- NEWS & COMMUNITY BLOGS -->
+    <div class="row mt-5">
+        <div class="col-lg-8">
+            <div class="section-title" data-aos="fade-up">
+                <span style="border-left-color: var(--accent-blue);">Community News & Blogs</span>
+                <a href="{% url 'blogs' %}" class="section-link">Read All <i class="fa fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="news-list-item" data-aos="fade-up">
+                <img src="https://images.unsplash.com/photo-1534809027769-b00d750a6bac?q=80&w=500&auto=format&fit=crop" alt="News" class="news-list-img">
+                <div class="news-list-content">
+                    <span class="badge badge-danger mb-2 align-self-start">News</span>
+                    <h3 class="news-list-title"><a href="#">Marvel Announces Phase 6 Lineup</a></h3>
+                    <p class="news-meta">By ComicBroZ Admin | 2 Hours Ago | 1.2k Views</p>
+                </div>
+            </div>
+
+            <div class="news-list-item" data-aos="fade-up" data-aos-delay="100">
+                <img src="https://images.unsplash.com/photo-1601153211050-ea9b4a45a3be?q=80&w=500&auto=format&fit=crop" alt="News" class="news-list-img">
+                <div class="news-list-content">
+                    <span class="badge badge-info mb-2 align-self-start">Review</span>
+                    <h3 class="news-list-title"><a href="#">Is The New Batman Run Worth Reading?</a></h3>
+                    <p class="news-meta">By User123 | 5 Hours Ago | 800 Views</p>
+                </div>
+            </div>
+            
+            <div class="news-list-item" data-aos="fade-up" data-aos-delay="200">
+                <img src="https://images.unsplash.com/photo-1582214953933-2c1303126f59?q=80&w=500&auto=format&fit=crop" alt="News" class="news-list-img">
+                <div class="news-list-content">
+                    <span class="badge badge-warning mb-2 align-self-start" style="color: #000;">Theory</span>
+                    <h3 class="news-list-title"><a href="#">Who Will Play Doctor Doom in Secret Wars?</a></h3>
+                    <p class="news-meta">By MCU_Fanatic | 1 Day Ago | 3.5k Views</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar AdSense -->
+        <div class="col-lg-4 mt-5 pt-4" data-aos="fade-left">
+            <div class="ad-placeholder h-100 d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                <div>
+                    <h5 class="text-muted">Google AdSense Space</h5>
+                    <p class="mb-0">Sidebar Banner (300x600)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
