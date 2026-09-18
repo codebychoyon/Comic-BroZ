@@ -20,6 +20,20 @@
         border-radius: 8px;
         padding: 12px 15px;
     }
+    select.custom-input {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+        background-repeat: no-repeat;
+        background-position-x: 98%;
+        background-position-y: 50%;
+        height: auto;
+    }
+    select.custom-input option {
+        background: var(--card-bg, #15151C);
+        color: #fff;
+    }
     .custom-input:focus {
         background: rgba(0, 0, 0, 0.4);
         border-color: var(--accent-red, #F0225A);
@@ -71,6 +85,11 @@
         font-size: 1.1rem;
         min-height: 300px;
     }
+    .ql-editor img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
     .ql-toolbar .ql-stroke { stroke: #bbb; }
     .ql-toolbar .ql-fill { fill: #bbb; }
     .ql-toolbar .ql-picker { color: #bbb; }
@@ -115,7 +134,7 @@
     </div>
 
     <div class="row">
-        <div class="col-12 col-lg-10 offset-lg-1">
+        <div class="col-12 col-lg-6 mb-5 mb-lg-0">
             <div class="form-container">
                 <form method="post" enctype="multipart/form-data" id="blogForm">
                     {% csrf_token %}
@@ -187,6 +206,33 @@
                 </form>
             </div>
         </div>
+        
+        <!-- Live Preview Column -->
+        <div class="col-12 col-lg-6 d-none d-lg-block">
+            <div class="sticky-top" style="top: 100px; z-index: 10;">
+                <h4 class="text-white font-weight-bold mb-4 pb-2" style="border-bottom: 2px solid var(--accent-red);">Live Preview</h4>
+                <div class="preview-container" style="background: var(--card-bg, #15151C); border-radius: 14px; padding: 30px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); border: 1px solid #333; max-height: 75vh; overflow-y: auto;">
+                    
+                    <div id="preview-cover" class="mb-4" style="border-radius: 8px; overflow: hidden; display: none;">
+                        <img src="" class="img-fluid w-100" style="object-fit: cover; max-height: 250px;">
+                    </div>
+                    
+                    <span id="preview-category" class="blog-badge-detail" style="display: none; background: var(--accent-red, #F0225A); border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 15px; display: inline-block;"></span>
+                    
+                    <h2 id="preview-title" class="font-weight-bold text-white mb-3" style="font-family: 'Outfit', sans-serif;">Your Title Here</h2>
+                    
+                    <div class="d-flex align-items-center text-white-50 mb-4 pb-4" style="border-bottom: 1px solid #333;">
+                        <span>{{ request.user.username }} &middot; Just now</span>
+                    </div>
+                    
+                    <p id="preview-excerpt" class="lead text-white font-weight-bold mb-4" style="font-size: 1.1rem; display: none;"></p>
+                    
+                    <div id="preview-content" class="blog-content" style="color: var(--text-muted, #B0B0B8); line-height: 1.7; font-size: 1.1rem; word-break: break-word; overflow-wrap: break-word;">
+                        <p>Start writing to see your epic story here...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -241,6 +287,65 @@
         
         // Submit the form
         document.getElementById('blogForm').submit();
+    }
+
+    // --- LIVE PREVIEW LOGIC ---
+    const titleInput = document.querySelector('input[name="title"]');
+    const previewTitle = document.getElementById('preview-title');
+    titleInput.addEventListener('input', function() {
+        previewTitle.textContent = this.value || 'Your Title Here';
+    });
+    
+    const categorySelect = document.querySelector('select[name="category"]');
+    const previewCategory = document.getElementById('preview-category');
+    categorySelect.addEventListener('change', function() {
+        if(this.options[this.selectedIndex].text !== "Select a category...") {
+            previewCategory.textContent = this.options[this.selectedIndex].text.toUpperCase();
+            previewCategory.style.display = 'inline-block';
+        } else {
+            previewCategory.style.display = 'none';
+        }
+    });
+
+    const excerptInput = document.querySelector('textarea[name="excerpt"]');
+    const previewExcerpt = document.getElementById('preview-excerpt');
+    excerptInput.addEventListener('input', function() {
+        if(this.value) {
+            previewExcerpt.textContent = this.value;
+            previewExcerpt.style.display = 'block';
+        } else {
+            previewExcerpt.style.display = 'none';
+        }
+    });
+
+    const previewContent = document.getElementById('preview-content');
+    quill.on('text-change', function() {
+        var html = quill.root.innerHTML;
+        previewContent.innerHTML = html === '<p><br></p>' ? '<p>Start writing to see your epic story here...</p>' : html;
+    });
+
+    // Also update preview image
+    const oldPreviewImage = previewImage;
+    window.previewImage = function(input) {
+        oldPreviewImage(input);
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('#preview-cover img').src = e.target.result;
+                document.getElementById('preview-cover').style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Trigger initial state
+    if(titleInput.value) titleInput.dispatchEvent(new Event('input'));
+    if(categorySelect.value) categorySelect.dispatchEvent(new Event('change'));
+    if(excerptInput.value) excerptInput.dispatchEvent(new Event('input'));
+    if(contentInput.value) quill.emitter.emit('text-change');
+    if(document.getElementById('image-preview').src && document.getElementById('image-preview').src.indexOf('base64') === -1) {
+        document.querySelector('#preview-cover img').src = document.getElementById('image-preview').src;
+        document.getElementById('preview-cover').style.display = 'block';
     }
 </script>
 {% endblock %}

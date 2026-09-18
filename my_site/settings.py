@@ -164,3 +164,6 @@ STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 TMDB_API_KEY = os.getenv('TMDB_API_KEY')
+
+# Increase max upload size for base64 images embedded in Quill
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
