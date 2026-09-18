@@ -13,7 +13,7 @@
         min-height: 450px;
         display: flex;
         align-items: center;
-        background: url('https://images.unsplash.com/photo-1612036782180-6f0b6ce846ce?q=80&w=2070&auto=format&fit=crop') center/cover;
+        background: url('https://images.unsplash.com/photo-1588497859490-85d1c17db96d?q=80&w=2070&auto=format&fit=crop') center/cover;
     }
     .hero-banner::after {
         content: '';
@@ -40,6 +40,48 @@
         font-size: 1.1rem;
         color: #ddd;
         margin-bottom: 30px;
+    }
+
+    /* Modern Hero Button */
+    .btn-hero-modern {
+        display: inline-block;
+        padding: 15px 40px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #fff;
+        background: rgba(255, 42, 77, 0.1);
+        border: 2px solid var(--accent-red);
+        border-radius: 50px;
+        backdrop-filter: blur(8px);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-decoration: none;
+        box-shadow: 0 0 15px rgba(255, 42, 77, 0.3);
+        z-index: 1;
+    }
+    .btn-hero-modern::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(45deg, var(--accent-red), #ff007a);
+        z-index: -1;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.5s ease;
+    }
+    .btn-hero-modern:hover {
+        color: #fff;
+        text-decoration: none;
+        box-shadow: 0 0 30px rgba(255, 42, 77, 0.7), 0 0 60px rgba(255, 42, 77, 0.3);
+        transform: translateY(-5px);
+    }
+    .btn-hero-modern:hover::before {
+        transform: scaleX(1);
+        transform-origin: left;
     }
 
     /* Section Titles */
@@ -299,7 +341,7 @@
         <div class="hero-content">
             <h1 class="hero-title">Enter the Comic Verse</h1>
             <p class="hero-text">Discover stories that leap off the page! Dive into our latest comic adventures, track your favorite superhero movies, and join the ultimate fan community.</p>
-            <a href="{% url 'comics' %}" class="btn-premium">Explore Collection</a>
+            <a href="{% url 'comics' %}" class="btn-hero-modern">Explore Collection</a>
         </div>
     </div>
 

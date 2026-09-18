@@ -6,8 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from .forms import RegisterForm, LoginForm, PasswordChangeForm, UserUpdateForm, ProfileUpdateForm
-from .models import User, Movie, Comic, Blog, Comment, Like, Profile, WatchHistory, Testimonial, CharacterCard
+from .models import User, Movie, Comic, Blog, Comment, Like, Profile, WatchHistory, Testimonial, CharacterCard, Category
+from django.core.paginator import Paginator
 from django.utils import timezone
+from django.db.models import Q
 from dashboard.forms import BlogForm
 from django.views.decorators.http import require_POST
 import stripe
@@ -294,7 +296,44 @@ def profile_view(request):
 
 def blog(request):
     blogs = Blog.objects.all().order_by('-created_at')
-    return render(request, 'blogs.html', {'blogs': blogs})
+    
+    # Identify featured blog (the absolute latest one)
+    featured_blog = blogs.first() if blogs.exists() else None
+    
+    # Identify popular blogs (top 3 by views)
+    popular_blogs = Blog.objects.order_by('-views_count')[:3]
+    
+    # Search
+    search_query = request.GET.get('q')
+    if search_query:
+        blogs = blogs.filter(Q(title__icontains=search_query) | Q(content__icontains=search_query))
+        featured_blog = None # Hide featured block when searching
+        
+    # Category Filter
+    category_id = request.GET.get('category')
+    if category_id:
+        blogs = blogs.filter(category_id=category_id)
+        featured_blog = None # Hide featured block when filtering
+        
+    # Remove featured blog from the main feed if it's being displayed
+    if featured_blog:
+        blogs = blogs.exclude(id=featured_blog.id)
+        
+    # Pagination
+    paginator = Paginator(blogs, 6) # 6 blogs per page in a 2-column layout fits nicely
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    categories = Category.objects.all()
+    
+    return render(request, 'blogs.html', {
+        'page_obj': page_obj, 
+        'categories': categories, 
+        'search_query': search_query,
+        'current_category': int(category_id) if category_id else None,
+        'featured_blog': featured_blog,
+        'popular_blogs': popular_blogs,
+    })
 
 @login_required
 def create_blog(request):
@@ -350,6 +389,15 @@ def delete_blog(request, blog_id):
 
 def blog_detail(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
+    
+    # Increment view count
+    blog.views_count += 1
+    blog.save()
+    
+    # Calculate read time
+    word_count = len(blog.content.split())
+    read_time = max(1, round(word_count / 200)) # 200 WPM average
+    
     comments = blog.comments.filter(parent__isnull=True).prefetch_related('replies')
     recent_blogs = Blog.objects.exclude(id=blog_id)[:5]
     likes_count = Like.objects.filter(blog=blog).count()
@@ -363,6 +411,7 @@ def blog_detail(request, blog_id):
         'recent_blogs': recent_blogs,
         'likes_count': likes_count,
         'user_liked': user_liked,
+        'read_time': read_time,
     }
     return render(request, 'blog_details.html', context)
 

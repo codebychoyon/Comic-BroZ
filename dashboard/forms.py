@@ -4,7 +4,7 @@ from users.models import Blog, Comic, Like, Comment
 class BlogForm(forms.ModelForm):
     class Meta:
         model = Blog
-        fields = ['title', 'content', 'image']  # Exclude 'author' field
+        fields = ['title', 'category', 'content', 'image']  # Exclude 'author' field
 
 
 class ComicForm(forms.ModelForm):

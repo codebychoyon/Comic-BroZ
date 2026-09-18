@@ -111,11 +111,19 @@ class Purchase(models.Model):
     def __str__(self):
         return f"{self.user.username} purchased {self.comic.title} on {self.purchased_at}"  
     
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
 class Blog(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='blogs')
     image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blogs_written', blank=True, null=True)
+    views_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)  
 

@@ -432,23 +432,39 @@
 
 {% block content %}
 <div class="message-container" id="message-container"></div>
-<main class="blog-detail-container">
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="blog-header">
+<main class="blog-detail-container" style="max-width: 800px; margin: 0 auto;">
+  <div class="reading-column">
+    <div class="col-12 p-0">
+      <div class="blog-header mb-5">
         {% if blog.image %}
-        <img src="{{ blog.image.url }}" class="blog-image" alt="{{ blog.title }}">
+        <div class="w-100 mb-4 overflow-hidden rounded shadow-lg image-wrapper" style="height: 500px;">
+          <img src="{{ blog.image.url }}" class="bg-blur" alt="">
+          <img src="{{ blog.image.url }}" class="fg-contain" alt="{{ blog.title }}">
+        </div>
         {% endif %}
-        <h1 class="blog-title">{{ blog.title }}</h1>
+        
+        <div class="mb-3 d-flex align-items-center flex-wrap gap-2">
+          {% if blog.category %}
+          <span class="badge" style="background-color: #ff4d6d; color: white; font-size: 1rem; padding: 0.5rem 1rem;">{{ blog.category.name }}</span>
+          {% endif %}
+          <span class="text-warning ml-3"><i class="fa fa-calendar"></i> {{ blog.created_at|date:"M d, Y" }}</span>
+          <span class="text-muted ml-3"><i class="fa fa-eye"></i> {{ blog.views_count }} Views</span>
+          <span class="text-muted ml-3"><i class="fa fa-clock-o"></i> {{ read_time }} min read</span>
+        </div>
 
-        <div class="blog-meta">
-          <div class="author-info">
+        <h1 class="blog-title font-weight-bold mb-4" style="font-family: 'Bangers', cursive; font-size: 3.5rem; color: #ffda79; line-height: 1.1;">{{ blog.title }}</h1>
+
+        <div class="blog-meta d-flex align-items-center pb-4 mb-4" style="border-bottom: 2px solid rgba(255, 218, 121, 0.2);">
+          <div class="author-info d-flex align-items-center">
             {% if blog.author.profile.profile_image %}
-            <img src="{{ blog.author.profile.profile_image.url }}" class="author-avatar" alt="{{ blog.author.username }}">
+            <img src="{{ blog.author.profile.profile_image.url }}" class="author-avatar rounded-circle mr-3" width="50" height="50" style="border: 2px solid #ffda79; object-fit: cover;" alt="{{ blog.author.username }}">
             {% else %}
-            <i class="fa fa-user-circle fa-2x" style="color: var(--secondary);"></i>
+            <i class="fa fa-user-circle fa-3x text-warning mr-3"></i>
             {% endif %}
-            <span class="author-name">By {{ blog.author.username|default:"Anonymous" }}</span>
+            <div>
+              <span class="d-block text-muted" style="font-size: 0.9rem;">Written by</span>
+              <span class="author-name font-weight-bold text-light" style="font-size: 1.2rem;">{{ blog.author.username|default:"Anonymous" }}</span>
+            </div>
           </div>
 
           <div class="like-count">
@@ -458,21 +474,30 @@
         </div>
       </div>
 
-      <div class="blog-content">
-        {{ blog.content|linebreaks }}
+      <div class="blog-content text-light" style="font-size: 1.15rem; line-height: 1.8; font-family: 'Poppins', sans-serif;">
+        {{ blog.content|safe }}
       </div>
 
-      <form method="POST" action="{% url 'like_blog' blog.id %}" class="like-form">
-        {% csrf_token %}
-        <button type="submit" class="like-btn {% if user_liked %}liked{% endif %}" id="like-button">
-          <i class="fa {% if user_liked %}fa-heart{% else %}fa-heart-o{% endif %}"></i>
-          {% if user.is_authenticated %}
-          {% if user_liked %}Liked{% else %}Like{% endif %}
-          {% else %}
-          Like
-          {% endif %}
-        </button>
-      </form>
+      <div class="d-flex align-items-center mb-4">
+        <form method="POST" action="{% url 'like_blog' blog.id %}" class="like-form mr-4">
+          {% csrf_token %}
+          <button type="submit" class="like-btn {% if user_liked %}liked{% endif %}" id="like-button">
+            <i class="fa {% if user_liked %}fa-heart{% else %}fa-heart-o{% endif %}"></i>
+            {% if user.is_authenticated %}
+            {% if user_liked %}Liked{% else %}Like{% endif %}
+            {% else %}
+            Like
+            {% endif %}
+          </button>
+        </form>
+
+        <div class="share-buttons">
+          <span class="mr-2" style="font-family: 'Bangers', cursive; color: var(--secondary); font-size: 1.2rem;">Share:</span>
+          <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ blog.title }}" target="_blank" class="btn btn-outline-info btn-sm rounded-circle mr-1"><i class="fa fa-twitter"></i></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-circle mr-1"><i class="fa fa-facebook"></i></a>
+          <a href="https://api.whatsapp.com/send?text={{ blog.title }} {{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-success btn-sm rounded-circle"><i class="fa fa-whatsapp"></i></a>
+        </div>
+      </div>
 
       <div class="comments-section">
         <div class="comments-header">
@@ -504,19 +529,6 @@
           <div class="alert alert-info">No comments yet. Be the first to comment!</div>
           {% endfor %}
         </div>
-      </div>
-    </div>
-
-    <div class="col-lg-4">
-      <div class="sidebar">
-        <h3 class="sidebar-title">Recent Posts</h3>
-        {% for recent_blog in recent_blogs %}
-        <div class="recent-post">
-          <a href="{% url 'blog_detail' recent_blog.id %}">
-            <h4 class="recent-post-title">{{ recent_blog.title }}</h4>
-          </a>
-        </div>
-        {% endfor %}
       </div>
     </div>
   </div>

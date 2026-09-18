@@ -5,6 +5,10 @@
 
 {% block body_class %}sub_page{% endblock %}
 
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 <style>
   :root {
@@ -214,6 +218,13 @@
         {% csrf_token %}
         <input type="text" class="post-form-input" name="title" id="id_title" 
                placeholder="What's the title of your post?" required>
+               
+        <select class="post-form-input" name="category" id="id_category" required>
+            <option value="" disabled selected>Select a category</option>
+            {% for cat in form.fields.category.queryset %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endfor %}
+        </select>
         
         <textarea class="post-form-input post-form-textarea" name="content" id="id_content" 
                   placeholder="What's on your mind?" required></textarea>
@@ -262,6 +273,26 @@
       postBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Posting...';
       postBtn.disabled = true;
     });
+
+    // Summernote initialization
+    $('#id_content').summernote({
+        placeholder: 'What\'s on your mind?',
+        tabsize: 2,
+        height: 300,
+        toolbar: [
+          ['style', ['style']],
+          ['font', ['bold', 'underline', 'clear']],
+          ['color', ['color']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['table', ['table']],
+          ['insert', ['link', 'picture', 'video']],
+          ['view', ['fullscreen', 'codeview', 'help']]
+        ]
+    });
   });
 </script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
 {% endblock %}
