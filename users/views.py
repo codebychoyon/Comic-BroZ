@@ -459,14 +459,29 @@ def add_comment(request, blog_id):
         
         comment = Comment.objects.create(**comment_kwargs)
         
+        from django.template.loader import render_to_string
+        
+        # Calculate depth for styling (rudimentary)
+        depth = 0
+        if parent_id:
+            curr = comment.parent
+            while curr:
+                depth += 1
+                curr = curr.parent
+            if depth > 3:
+                depth = 3
+                
+        html = render_to_string('blog/partials/comment.html', {
+            'comment': comment,
+            'depth': depth,
+            'blog': blog,
+        }, request=request)
+        
         return JsonResponse({
             'success': True,
-            'comment_id': comment.id,
-            'content': comment.content,
-            'user_username': comment.user.username,
-            'user_avatar': comment.user.profile.profile_image.url if hasattr(comment.user, 'profile') and comment.user.profile.profile_image else None,
-            'created_at': comment.created_at.strftime('%B %d, %Y %H:%M'),
+            'html': html,
             'comments_count': blog.comments.count(),
+            'parent_id': parent_id,
         })
     return JsonResponse({'success': False, 'message': 'Invalid request'})
 

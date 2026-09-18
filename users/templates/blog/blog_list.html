@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Community Blogs | Comic Bro'Z{% endblock %}
+
+{% block content %}
+<style>
+    .blog-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: var(--accent-red, #F0225A);
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #fff;
+    }
+    .blog-card {
+        background: var(--card-bg, #15151C);
+        border-radius: 14px;
+        overflow: hidden;
+        transition: transform .2s, box-shadow .2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    .blog-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(240,34,90,0.15);
+    }
+    .blog-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .blog-meta {
+        color: var(--text-muted, #B0B0B8);
+        font-size: 13px;
+    }
+    .btn-gradient-pink {
+        background: linear-gradient(135deg, var(--accent-red, #F0225A) 0%, #ff4b72 100%);
+        color: white;
+        border: none;
+        border-radius: 999px;
+        padding: 8px 24px;
+        font-weight: 600;
+        transition: opacity 0.2s;
+    }
+    .btn-gradient-pink:hover {
+        opacity: 0.9;
+        color: white;
+        text-decoration: none;
+    }
+</style>
+
+<div class="container mt-5 pt-5 pb-5">
+    <!-- Header Row -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h1 class="font-weight-bold" style="color: var(--text-main); font-family: 'Outfit', sans-serif;">Community Blogs</h1>
+        </div>
+        <div class="col-md-6 text-md-right mt-3 mt-md-0 d-flex justify-content-md-end align-items-center">
+            <form action="{% url 'blogs' %}" method="get" class="form-inline mr-3">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search blogs..." value="{{ request.GET.search }}" style="background: var(--bg-card); border: 1px solid #333; color: #fff; border-radius: 20px 0 0 20px;">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" style="border-radius: 0 20px 20px 0; border-color: #333;">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'create_blog' %}" class="btn-gradient-pink">
+                    <i class="fa fa-pencil mr-1"></i> Write a Post
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-wrap" style="gap: 10px;">
+                <a href="{% url 'blogs' %}" class="badge badge-pill p-2 px-3 {% if not request.GET.category %}badge-light{% else %}badge-dark{% endif %}" style="font-size: 14px;">All</a>
+                {% for category in categories %}
+                    <a href="{% url 'blogs' %}?category={{ category.name }}" class="badge badge-pill p-2 px-3 {% if request.GET.category == category.name %}badge-light{% else %}badge-dark{% endif %}" style="font-size: 14px; border: 1px solid #333;">{{ category.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Grid -->
+    <div class="row">
+        {% for blog in blogs %}
+            <div class="col-12 col-md-4 mb-4">
+                {% include 'blog/partials/blog_card.html' with blog=blog %}
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fa fa-folder-open-o fa-3x mb-3" style="color: var(--text-muted);"></i>
+                <h4 style="color: var(--text-muted);">No blogs found.</h4>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="row mt-4">
+        <div class="col-12 d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm" style="background: transparent;">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" style="background: var(--bg-card); border-color: #333; color: var(--text-muted);">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link" style="background: var(--accent-red); border-color: var(--accent-red);">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" style="background: var(--bg-card); border-color: #333; color: var(--text-muted);">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" style="background: var(--bg-card); border-color: #333; color: var(--text-muted);">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

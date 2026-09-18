@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import register, login, logout, home, movies, about, blog, delete_blog, edit_blog, contact, like_blog, add_comment, blog_detail, edit_comment, delete_comment, change_password, profile_view, profile_update,  create_blog, character_card, comic, comic_purchase, comic_favorite, comic_unfavorite, comic_read, payment_success, comic_detail, success_page, search_movie
-
+from .views import register, login, logout, home, movies, about, delete_blog, contact, add_comment, edit_comment, delete_comment, change_password, profile_view, profile_update, character_card, comic, comic_purchase, comic_favorite, comic_unfavorite, comic_read, payment_success, comic_detail, success_page, search_movie
+from .blog_views import BlogListView, BlogDetailView, BlogCreateView, BlogUpdateView, ToggleLikeView, TogglePostDislikeView, ToggleCommentLikeView, ToggleCommentDislikeView
 urlpatterns = [
     path('register/', register, name='register'),
     path('login/', login, name='login'),
@@ -20,12 +20,15 @@ urlpatterns = [
     path('comics/<int:pk>/read/', comic_read, name='comic_read'),
     path('comics/success-page/<int:order_id>/', success_page, name='success_page'),
     path('contact/', contact, name='contact'),
-    path('blogs/', blog, name='blogs'),
-    path('blogs/create/', create_blog, name='create_blog'),
-    path('blog/<int:blog_id>/edit/', edit_blog, name='edit_blog'),
-    path('blog/<int:blog_id>/delete/', delete_blog, name='delete_blog'),
-    path('blogs/<int:blog_id>/', blog_detail, name='blog_detail'),
-    path('blogs/<int:blog_id>/like/', like_blog, name='like_blog'),
+    path('blogs/', BlogListView.as_view(), name='blogs'),
+    path('blogs/create/', BlogCreateView.as_view(), name='create_blog'),
+    path('blogs/<slug:slug>/edit/', BlogUpdateView.as_view(), name='edit_blog'),
+    path('blogs/<int:blog_id>/delete/', delete_blog, name='delete_blog'),
+    path('blogs/<slug:slug>/', BlogDetailView.as_view(), name='blog_detail'),
+    path('blogs/<slug:slug>/like/', ToggleLikeView.as_view(), name='like_blog'),
+    path('blogs/<slug:slug>/dislike/', TogglePostDislikeView.as_view(), name='dislike_blog'),
+    path('comments/<int:comment_id>/like/', ToggleCommentLikeView.as_view(), name='like_comment'),
+    path('comments/<int:comment_id>/dislike/', ToggleCommentDislikeView.as_view(), name='dislike_comment'),
     path('blogs/<int:blog_id>/comments/add/', add_comment, name='add_comment'),
     path('blogs/<int:blog_id>/comments/<int:comment_id>/edit/', edit_comment, name='edit_comment'),
     path('blogs/<int:blog_id>/comments/<int:comment_id>/delete/', delete_comment, name='delete_comment'),

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
@@ -118,14 +119,31 @@ class Category(models.Model):
         return self.name
 
 class Blog(models.Model):
+    STATUS_CHOICES = [("draft", "Draft"), ("published", "Published")]
+    
     title = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, blank=True, null=True)
+    excerpt = models.CharField(max_length=300, blank=True)
     content = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='blogs')
     image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blogs_written', blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     views_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)  
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+            # handle duplicate slugs if needed, simple version for now
+            original_slug = self.slug
+            queryset = Blog.objects.exclude(pk=self.pk)
+            counter = 1
+            while queryset.filter(slug=self.slug).exists():
+                self.slug = f"{original_slug}-{counter}"
+                counter += 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -154,7 +172,38 @@ class Comment(models.Model):
     class Meta:
         ordering = ['created_at']
 
-    
+class PostDislike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='post_dislikes')
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='dislikes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'blog')
+
+    def __str__(self):
+        return f"{self.user.username} disliked {self.blog.title}"
+
+class CommentLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_likes')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'comment')
+
+    def __str__(self):
+        return f"{self.user.username} liked comment {self.comment.id}"
+
+class CommentDislike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_dislikes')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='dislikes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'comment')
+
+    def __str__(self):
+        return f"{self.user.username} disliked comment {self.comment.id}"
     
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

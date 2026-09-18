@@ -1,0 +1,83 @@
+{% load static %}
+<div class="comment {% if depth == 0 %}mb-4 p-3{% else %}mt-3 pt-2{% endif %}" style="{% if depth == 0 %}background: var(--card-bg, #15151C); border-radius: 12px; border: 1px solid #222;{% else %}border-left: 2px solid #333; padding-left: 15px;{% endif %}" id="comment-{{ comment.id }}">
+    <div class="d-flex">
+        <div class="mr-3">
+            {% if comment.user.profile.profile_picture %}
+                <img src="{{ comment.user.profile.profile_picture.url }}" class="rounded-circle" style="width: {% if depth > 0 %}32px{% else %}40px{% endif %}; height: {% if depth > 0 %}32px{% else %}40px{% endif %}; object-fit: cover;">
+            {% else %}
+                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: {% if depth > 0 %}32px{% else %}40px{% endif %}; height: {% if depth > 0 %}32px{% else %}40px{% endif %};">
+                    <span class="text-white" style="font-size: {% if depth > 0 %}12px{% else %}16px{% endif %};">{{ comment.user.username|make_list|first|upper }}</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-white mb-0" style="font-size: {% if depth > 0 %}0.9rem{% else %}1rem{% endif %};">{{ comment.user.username }}</h6>
+                <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+            </div>
+            <p class="mb-2" style="color: #ccc; font-size: 0.95rem;">{{ comment.content }}</p>
+            
+            <!-- Comment Actions -->
+            <div class="d-flex align-items-center mt-2">
+                {% if request.user.is_authenticated %}
+                    <button class="btn btn-sm btn-link text-muted comment-like-btn p-0 mr-3 {% if comment.id in user_comment_likes %}text-danger{% endif %}" data-url="{% url 'like_comment' comment_id=comment.id %}">
+                        <i class="fa fa-thumbs-up"></i> <span class="like-count">{{ comment.likes.count }}</span>
+                    </button>
+                    <button class="btn btn-sm btn-link text-muted comment-dislike-btn p-0 mr-3 {% if comment.id in user_comment_dislikes %}text-danger{% endif %}" data-url="{% url 'dislike_comment' comment_id=comment.id %}">
+                        <i class="fa fa-thumbs-down"></i> <span class="dislike-count">{{ comment.dislikes.count }}</span>
+                    </button>
+                    <button class="btn btn-sm btn-link text-muted reply-toggle-btn p-0" onclick="toggleReplyForm({{ comment.id }})">
+                        <i class="fa fa-reply"></i> Reply
+                    </button>
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-link text-muted p-0 mr-3">
+                        <i class="fa fa-thumbs-up"></i> {{ comment.likes.count }}
+                    </a>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-link text-muted p-0 mr-3">
+                        <i class="fa fa-thumbs-down"></i> {{ comment.dislikes.count }}
+                    </a>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-link text-muted p-0">
+                        <i class="fa fa-reply"></i> Reply
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Reply Form (Hidden by default) -->
+            {% if request.user.is_authenticated %}
+            <div id="reply-form-{{ comment.id }}" class="reply-form mt-3" style="display: none;">
+                <form action="{% url 'add_comment' blog_id=blog.id %}" method="post" class="comment-submit-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                    <div class="form-group mb-2">
+                        <textarea name="content" class="form-control comment-input" rows="2" placeholder="Write a reply..." required style="font-size: 0.9rem;"></textarea>
+                    </div>
+                    <div class="text-right">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm({{ comment.id }})">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-primary ml-2" style="background: var(--accent-red, #F0225A); border: none;">Reply</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Replies Toggle and Container -->
+            {% if comment.replies.all %}
+            <div class="mt-2">
+                <button class="btn btn-sm btn-link p-0 font-weight-bold toggle-replies-btn" onclick="toggleReplies({{ comment.id }})" style="color: var(--accent-blue, #3EC6FF); text-decoration: none;">
+                    <i class="fa fa-chevron-down mr-1" id="toggle-icon-{{ comment.id }}"></i> 
+                    <span id="toggle-text-{{ comment.id }}">View {{ comment.replies.count }} repl{% if comment.replies.count == 1 %}y{% else %}ies{% endif %}</span>
+                </button>
+            </div>
+            
+            <div id="replies-{{ comment.id }}" class="replies-container mt-3" style="display: none;">
+                {% for reply in comment.replies.all %}
+                    {% if depth < 3 %}
+                        {% include 'blog/partials/comment.html' with comment=reply depth=depth|add:"1" %}
+                    {% else %}
+                        {% include 'blog/partials/comment.html' with comment=reply depth=depth %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

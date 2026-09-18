@@ -1,0 +1,33 @@
+{% load static %}
+<div class="blog-card position-relative h-100">
+    <a href="{% url 'blog_detail' slug=blog.slug %}" class="text-decoration-none">
+        <div class="image-wrapper position-relative" style="overflow: hidden; border-radius: 14px 14px 0 0;">
+            {% if blog.image %}
+                <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="img-fluid w-100" style="height: 200px; object-fit: cover;">
+            {% else %}
+                <img src="{% static 'assets/img/default_blog.jpg' %}" alt="{{ blog.title }}" class="img-fluid w-100" style="height: 200px; object-fit: cover;">
+            {% endif %}
+            
+            {% if blog.category %}
+                <span class="blog-badge">{{ blog.category.name|upper }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="card-body p-3" style="background: var(--card-bg, #15151C); border-radius: 0 0 14px 14px;">
+            <h5 class="blog-title text-white font-weight-bold mb-3" style="font-size: 1.1rem; line-height: 1.4;">
+                {{ blog.title }}
+            </h5>
+            
+            <div class="blog-meta d-flex align-items-center">
+                {% if blog.author.profile.profile_picture %}
+                    <img src="{{ blog.author.profile.profile_picture.url }}" alt="{{ blog.author.username }}" class="rounded-circle mr-2" style="width: 32px; height: 32px; object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle mr-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <span class="text-white small">{{ blog.author.username|make_list|first|upper }}</span>
+                    </div>
+                {% endif %}
+                <span>{{ blog.author.username }} &middot; {{ blog.created_at|date:"M d" }}</span>
+            </div>
+        </div>
+    </a>
+</div>
