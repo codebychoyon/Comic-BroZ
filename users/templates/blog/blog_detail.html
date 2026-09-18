@@ -54,8 +54,6 @@
         margin-bottom: 15px;
     }
     .blog-content {
-        max-width: 720px;
-        margin: 0 auto;
         color: var(--text-muted, #B0B0B8);
         line-height: 1.7;
         font-size: 1.1rem;
@@ -125,8 +123,19 @@
 </div>
 
 <div class="container mt-5 mb-5">
-    <!-- Action Bar -->
-    <div class="blog-content mb-4 d-flex justify-content-between align-items-center">
+    <!-- Ad Placeholder: Header Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            {% include 'blog/partials/ad_placeholder.html' with type='banner' %}
+        </div>
+    </div>
+
+    <!-- Content and Sidebar Row -->
+    <div class="row">
+        <!-- Main Content Column -->
+        <div class="col-lg-8">
+            <!-- Action Bar -->
+            <div class="blog-content mb-4 d-flex justify-content-between align-items-center">
         <div>
             {% if request.user.is_authenticated %}
                 <button class="like-btn {% if user_liked %}liked{% endif %}" id="like-toggle" data-url="{% url 'like_blog' slug=blog.slug %}">
@@ -162,6 +171,11 @@
         {{ blog.content|safe }}
     </div>
 
+    <!-- Ad Placeholder: Mid-Page Banner -->
+    <div class="blog-content my-4">
+        {% include 'blog/partials/ad_placeholder.html' with type='banner' %}
+    </div>
+
     <hr style="border-color: #333; margin: 3rem 0; max-width: 720px; margin-left: auto; margin-right: auto;">
 
     <!-- Comments Section -->
@@ -194,11 +208,29 @@
             {% endfor %}
         </div>
     </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="col-lg-4 mt-5 mt-lg-0">
+            <div class="sticky-top" style="top: 100px; z-index: 10;">
+                <h4 class="text-white font-weight-bold mb-4 pb-2" style="border-bottom: 2px solid var(--accent-red);">Sponsors</h4>
+                <!-- Ad Placeholder: Sidebar Skyscraper -->
+                {% include 'blog/partials/ad_placeholder.html' with type='skyscraper' %}
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Related Posts -->
 {% if recent_blogs %}
 <div class="container pb-5">
+    <!-- Ad Placeholder: Footer Banner -->
+    <div class="row mb-5">
+        <div class="col-12">
+            {% include 'blog/partials/ad_placeholder.html' with type='banner' %}
+        </div>
+    </div>
+
     <hr style="border-color: #222; margin-bottom: 3rem;">
     <h3 class="text-white font-weight-bold mb-4" style="font-family: 'Outfit', sans-serif;">More from the Community</h3>
     <div class="row">

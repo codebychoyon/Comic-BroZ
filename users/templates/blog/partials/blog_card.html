@@ -18,15 +18,23 @@
                 {{ blog.title }}
             </h5>
             
-            <div class="blog-meta d-flex align-items-center">
-                {% if blog.author.profile.profile_picture %}
-                    <img src="{{ blog.author.profile.profile_picture.url }}" alt="{{ blog.author.username }}" class="rounded-circle mr-2" style="width: 32px; height: 32px; object-fit: cover;">
-                {% else %}
-                    <div class="rounded-circle mr-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                        <span class="text-white small">{{ blog.author.username|make_list|first|upper }}</span>
-                    </div>
-                {% endif %}
-                <span>{{ blog.author.username }} &middot; {{ blog.created_at|date:"M d" }}</span>
+            <div class="blog-meta d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    {% if blog.author.profile.profile_picture %}
+                        <img src="{{ blog.author.profile.profile_picture.url }}" alt="{{ blog.author.username }}" class="rounded-circle mr-2" style="width: 24px; height: 24px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle mr-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                            <span class="text-white" style="font-size: 10px;">{{ blog.author.username|make_list|first|upper }}</span>
+                        </div>
+                    {% endif %}
+                    <span style="font-size: 0.85rem; color: var(--text-muted, #B0B0B8);">{{ blog.author.username }} &middot; {{ blog.created_at|date:"M d" }}</span>
+                </div>
+                
+                <div class="d-flex align-items-center" style="font-size: 0.8rem; color: var(--text-muted, #B0B0B8); gap: 8px;">
+                    <span title="Likes"><i class="fa fa-thumbs-up"></i> {{ blog.likes.count }}</span>
+                    <span title="Dislikes"><i class="fa fa-thumbs-down"></i> {{ blog.dislikes.count }}</span>
+                    <span title="Comments"><i class="fa fa-comment"></i> {{ blog.comments.count }}</span>
+                </div>
             </div>
         </div>
     </a>
