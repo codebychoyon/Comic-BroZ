@@ -218,50 +218,92 @@
         color: var(--text-muted);
     }
 
-    /* Latest News Section (Continuous Marquee with Spidey Web) */
-    .spidey-slider-wrapper {
+    /* ====== LATEST NEWS SECTION - Extraordinary Spider-Man Edition ====== */
+    .spidey-news-section {
         position: relative;
-        padding-left: 80px; /* Space for Spidey */
-        padding-top: 20px;  /* Space above the cards for the web */
-        margin-bottom: 20px;
+        padding: 40px 0 60px;
+        overflow: visible;
     }
-    .spidey-character {
+
+    /* Web background overlay */
+    .spidey-news-section::before {
+        content: '';
         position: absolute;
-        left: 0;
-        top: 0;
-        width: 70px;
-        height: 70px;
-        background: url('https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=200&auto=format&fit=crop') center/cover;
-        border-radius: 50%;
-        border: 3px solid var(--accent-red);
-        box-shadow: 0 0 15px var(--accent-red), 0 0 30px var(--accent-blue);
-        z-index: 10;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: radial-gradient(ellipse at 85% 30%, rgba(255, 42, 77, 0.06) 0%, transparent 50%),
+                    radial-gradient(ellipse at 20% 80%, rgba(0, 229, 255, 0.04) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
     }
-    .spidey-web-line {
+
+    /* SVG web canvas */
+    .web-canvas {
         position: absolute;
-        left: 35px;
-        top: 35px; /* Center of Spidey */
-        width: calc(100% - 35px);
-        height: 2px;
-        background: #fff;
-        box-shadow: 0 0 8px #fff, 0 0 15px var(--accent-blue);
-        z-index: 5;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    /* Spider-Man Character - Right Side */
+    .spidey-hero-wrapper {
+        position: absolute;
+        right: -20px;
+        top: -40px;
+        width: 280px;
+        height: 380px;
+        z-index: 15;
+        filter: drop-shadow(0 0 25px rgba(255, 42, 77, 0.4)) drop-shadow(0 0 60px rgba(0, 229, 255, 0.15));
+        animation: spidey-float 4s ease-in-out infinite;
         pointer-events: none;
     }
+    .spidey-hero-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+    }
+
+    @keyframes spidey-float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-12px) rotate(1deg); }
+    }
+
+    /* Glowing energy pulse around Spidey's hand */
+    .spidey-web-origin {
+        position: absolute;
+        right: 230px;
+        top: 40px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #fff 0%, rgba(0, 229, 255, 0.8) 40%, transparent 70%);
+        box-shadow: 0 0 20px #00e5ff, 0 0 40px rgba(0, 229, 255, 0.5), 0 0 80px rgba(255, 42, 77, 0.3);
+        animation: pulse-glow 2s ease-in-out infinite;
+        z-index: 16;
+        pointer-events: none;
+    }
+    @keyframes pulse-glow {
+        0%, 100% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.5); opacity: 1; }
+    }
+
+    /* News Cards Horizontal Scroll */
     .news-horizontal-scroll {
         display: flex;
         overflow: hidden;
-        width: 100%;
-        padding-bottom: 15px;
-        padding-top: 30px; /* To prevent cutting off the hanging strings */
-        mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-        -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        width: calc(100% - 260px);
+        padding: 50px 0 20px 0;
+        mask-image: linear-gradient(to right, transparent, black 5%, black 85%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 85%, transparent);
+        position: relative;
+        z-index: 6;
     }
     .news-track {
         display: flex;
-        gap: 20px;
+        gap: 25px;
         width: max-content;
-        animation: scroll-left 25s linear infinite;
+        animation: scroll-left 30s linear infinite;
     }
     .news-track:hover {
         animation-play-state: paused;
@@ -270,54 +312,218 @@
         0% { transform: translateX(0); }
         100% { transform: translateX(-50%); }
     }
+
+    /* Extraordinary News Cards */
     .news-card-mini {
-        min-width: 280px;
-        max-width: 280px;
-        background: var(--bg-card);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        min-width: 290px;
+        max-width: 290px;
+        background: linear-gradient(145deg, rgba(21, 21, 26, 0.95), rgba(30, 15, 20, 0.9));
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
         display: flex;
         flex-direction: column;
         scroll-snap-align: start;
-        transition: transform 0.3s;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         position: relative;
         z-index: 6;
+        backdrop-filter: blur(10px);
+        overflow: hidden;
     }
+
+    /* Glowing web thread from each card going up */
     .news-card-mini::before {
         content: '';
         position: absolute;
-        top: -45px;
+        top: -60px;
         left: 50%;
-        width: 2px;
-        height: 45px;
-        background: #fff;
-        box-shadow: 0 0 5px #fff;
-        transform: rotate(20deg);
-        transform-origin: bottom center;
+        width: 1.5px;
+        height: 60px;
+        background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.6), rgba(0, 229, 255, 0.4));
+        box-shadow: 0 0 6px rgba(0, 229, 255, 0.5);
         z-index: -1;
+        animation: web-swing 3s ease-in-out infinite;
+        transform-origin: top center;
+    }
+    .news-card-mini:nth-child(1)::before { animation-delay: 0s; transform: rotate(-15deg); }
+    .news-card-mini:nth-child(2)::before { animation-delay: 0.3s; transform: rotate(-8deg); }
+    .news-card-mini:nth-child(3)::before { animation-delay: 0.6s; transform: rotate(5deg); }
+    .news-card-mini:nth-child(4)::before { animation-delay: 0.9s; transform: rotate(12deg); }
+    .news-card-mini:nth-child(5)::before { animation-delay: 1.2s; transform: rotate(18deg); }
+
+    @keyframes web-swing {
+        0%, 100% { transform: rotate(var(--swing-angle, -10deg)); }
+        50% { transform: rotate(calc(var(--swing-angle, -10deg) + 5deg)); }
+    }
+
+    /* Card glow border on hover */
+    .news-card-mini::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(255, 42, 77, 0.5), rgba(0, 229, 255, 0.5));
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    .news-card-mini:hover::after {
+        opacity: 1;
     }
     .news-card-mini:hover {
-        transform: translateY(-5px);
-        border-color: var(--accent-red);
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(255, 42, 77, 0.2), 0 5px 20px rgba(0, 229, 255, 0.1);
     }
     .news-card-mini img {
-        height: 140px;
+        height: 155px;
         object-fit: cover;
-        border-radius: 12px 12px 0 0;
+        border-radius: 16px 16px 0 0;
+        transition: transform 0.5s ease;
+    }
+    .news-card-mini:hover img {
+        transform: scale(1.08);
+    }
+    .news-card-mini .card-img-wrap {
+        overflow: hidden;
+        border-radius: 16px 16px 0 0;
+        position: relative;
+    }
+    .news-card-mini .card-img-wrap::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 50%;
+        background: linear-gradient(to top, rgba(21, 21, 26, 1), transparent);
+        pointer-events: none;
     }
     .news-card-mini .card-body {
-        padding: 15px;
+        padding: 18px;
+        position: relative;
+    }
+    .news-card-mini .card-body::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 18px; right: 18px;
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(255, 42, 77, 0.3), rgba(0, 229, 255, 0.3), transparent);
     }
     .news-card-mini h6 {
         font-size: 1rem;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
         color: var(--text-main);
         font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        line-height: 1.4;
     }
     .news-card-mini p {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         color: var(--text-muted);
         margin-bottom: 0;
+        letter-spacing: 0.5px;
+    }
+    .news-card-mini .news-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, rgba(255, 42, 77, 0.2), rgba(255, 42, 77, 0.1));
+        color: var(--accent-red);
+        border: 1px solid rgba(255, 42, 77, 0.3);
+    }
+
+    /* Floating web particles */
+    .web-particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 3;
+        animation: float-particle 6s ease-in-out infinite;
+    }
+    @keyframes float-particle {
+        0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+        25% { transform: translate(10px, -20px) scale(1.5); opacity: 0.8; }
+        50% { transform: translate(-5px, -40px) scale(0.8); opacity: 0.5; }
+        75% { transform: translate(15px, -25px) scale(1.2); opacity: 0.7; }
+    }
+
+    /* Section label pill */
+    .news-section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        background: rgba(255, 42, 77, 0.1);
+        border: 1px solid rgba(255, 42, 77, 0.2);
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-red);
+        margin-bottom: 12px;
+    }
+    .news-section-label i {
+        font-size: 0.7rem;
+        animation: blink-dot 1.5s ease-in-out infinite;
+    }
+    @keyframes blink-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .spidey-hero-wrapper {
+            width: 180px;
+            height: 250px;
+            right: -10px;
+            top: -20px;
+        }
+        .news-horizontal-scroll {
+            width: calc(100% - 160px);
+        }
+        .spidey-web-origin {
+            right: 148px;
+            top: 25px;
+        }
+    }
+    @media (max-width: 768px) {
+        .spidey-hero-wrapper {
+            width: 120px;
+            height: 170px;
+            right: 0;
+            top: 0;
+        }
+        .news-horizontal-scroll {
+            width: calc(100% - 100px);
+        }
+        .spidey-web-origin {
+            right: 95px;
+            top: 18px;
+            width: 14px;
+            height: 14px;
+        }
+        .news-card-mini {
+            min-width: 240px;
+            max-width: 240px;
+        }
+    }
+    @media (max-width: 480px) {
+        .spidey-hero-wrapper {
+            display: none;
+        }
+        .spidey-web-origin {
+            display: none;
+        }
+        .news-horizontal-scroll {
+            width: 100%;
+        }
     }
 
     /* AdSense Placeholder */
@@ -345,93 +551,167 @@
         </div>
     </div>
 
-    <!-- LATEST OFFICIAL NEWS -->
-    <div class="section-title" data-aos="fade-up" style="margin-top: 40px; margin-bottom: 20px;">
+    <!-- ====== LATEST NEWS - SPIDER-MAN EDITION ====== -->
+    <div class="section-title" data-aos="fade-up" style="margin-top: 40px; margin-bottom: 5px;">
         <span>Latest News</span>
     </div>
+    <div class="news-section-label" data-aos="fade-up" data-aos-delay="50">
+        <i class="fa fa-circle" style="color: var(--accent-red);"></i> LIVE UPDATES
+    </div>
     
-    <div class="spidey-slider-wrapper" data-aos="fade-up" data-aos-delay="100">
-        <!-- Spidey Web Elements -->
-        <div class="spidey-character"></div>
-        <div class="spidey-web-line"></div>
+    <div class="spidey-news-section" data-aos="fade-up" data-aos-delay="100">
+        <!-- SVG Web Canvas - Dynamic web lines drawn by JS -->
+        <svg class="web-canvas" id="webCanvas"></svg>
 
+        <!-- Floating Web Particles -->
+        <div class="web-particle" style="left: 15%; top: 30%; animation-delay: 0s;"></div>
+        <div class="web-particle" style="left: 35%; top: 60%; animation-delay: 1s;"></div>
+        <div class="web-particle" style="left: 55%; top: 25%; animation-delay: 2s;"></div>
+        <div class="web-particle" style="left: 75%; top: 50%; animation-delay: 0.5s;"></div>
+        <div class="web-particle" style="left: 25%; top: 80%; animation-delay: 1.5s;"></div>
+        <div class="web-particle" style="left: 65%; top: 40%; animation-delay: 3s;"></div>
+        <div class="web-particle" style="left: 45%; top: 70%; animation-delay: 2.5s;"></div>
+        <div class="web-particle" style="left: 10%; top: 50%; animation-delay: 4s;"></div>
+
+        <!-- Spider-Man Character - Right Side -->
+        <div class="spidey-hero-wrapper">
+            <img src="https://static.wikia.nocookie.net/marveldatabase/images/a/a4/Peter_Parker_%28Earth-616%29_from_Amazing_Fantasy_Vol_1_15_001.png" 
+                 alt="Spider-Man" 
+                 onerror="this.src='https://i.ibb.co/s9HRH5F/spiderman-crouch.png'; this.onerror=function(){this.src='{% static 'edgecut/images/iron-man.png' %}';}">
+        </div>
+        <!-- Web Origin Energy Pulse -->
+        <div class="spidey-web-origin"></div>
+
+        <!-- News Cards Marquee -->
         <div class="news-horizontal-scroll">
-        <div class="news-track">
-            <!-- Mockup News Item 1 -->
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1534809027769-b00d750a6bac?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>James Gunn Teases New Superman Suit</h6>
-                    <p>DC Studios | 1 Hour Ago</p>
+            <div class="news-track" id="newsTrack">
+                <!-- News Item 1 -->
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1534809027769-b00d750a6bac?q=80&w=600&auto=format&fit=crop" alt="Superman News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">DC Studios</span>
+                        <h6>James Gunn Teases New Superman Suit</h6>
+                        <p><i class="fa fa-clock-o"></i> 1 Hour Ago</p>
+                    </div>
                 </div>
-            </div>
-            <!-- Mockup News Item 2 -->
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1620075267033-09d12ce47b4d?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>Spider-Man 4 Filming Starts Next Spring</h6>
-                    <p>Marvel Studios | 3 Hours Ago</p>
+                <!-- News Item 2 -->
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1620075267033-09d12ce47b4d?q=80&w=600&auto=format&fit=crop" alt="Spider-Man News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Marvel</span>
+                        <h6>Spider-Man 4 Filming Starts Next Spring</h6>
+                        <p><i class="fa fa-clock-o"></i> 3 Hours Ago</p>
+                    </div>
                 </div>
-            </div>
-            <!-- Mockup News Item 3 -->
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1588497859490-85d1c17db96d?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>The Boys Season 5 Release Date Confirmed</h6>
-                    <p>Amazon Prime | 5 Hours Ago</p>
+                <!-- News Item 3 -->
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1588497859490-85d1c17db96d?q=80&w=600&auto=format&fit=crop" alt="The Boys News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Amazon Prime</span>
+                        <h6>The Boys Season 5 Release Date Confirmed</h6>
+                        <p><i class="fa fa-clock-o"></i> 5 Hours Ago</p>
+                    </div>
                 </div>
-            </div>
-            <!-- Mockup News Item 4 -->
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1549416878-b9ca95e1bbcd?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>Image Comics Announces Massive Crossover Event</h6>
-                    <p>Comics | 12 Hours Ago</p>
+                <!-- News Item 4 -->
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1549416878-b9ca95e1bbcd?q=80&w=600&auto=format&fit=crop" alt="Comics News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Comics</span>
+                        <h6>Image Comics Announces Massive Crossover Event</h6>
+                        <p><i class="fa fa-clock-o"></i> 12 Hours Ago</p>
+                    </div>
                 </div>
-            </div>
-            <!-- Mockup News Item 5 -->
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1612036782807-6c2e3998bb36?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>Venom: The Last Dance Box Office Projections</h6>
-                    <p>Box Office | 1 Day Ago</p>
+                <!-- News Item 5 -->
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1612036782807-6c2e3998bb36?q=80&w=600&auto=format&fit=crop" alt="Venom News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Box Office</span>
+                        <h6>Venom: The Last Dance Box Office Projections</h6>
+                        <p><i class="fa fa-clock-o"></i> 1 Day Ago</p>
+                    </div>
                 </div>
-            </div>
+                <!-- News Item 6 -->
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=600&auto=format&fit=crop" alt="Deadpool News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Marvel</span>
+                        <h6>Deadpool & Wolverine Breaks Opening Records</h6>
+                        <p><i class="fa fa-clock-o"></i> 2 Days Ago</p>
+                    </div>
+                </div>
 
-            <!-- DUPLICATED ITEMS FOR SEAMLESS LOOP -->
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1534809027769-b00d750a6bac?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>James Gunn Teases New Superman Suit</h6>
-                    <p>DC Studios | 1 Hour Ago</p>
+                <!-- DUPLICATED ITEMS FOR SEAMLESS LOOP -->
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1534809027769-b00d750a6bac?q=80&w=600&auto=format&fit=crop" alt="Superman News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">DC Studios</span>
+                        <h6>James Gunn Teases New Superman Suit</h6>
+                        <p><i class="fa fa-clock-o"></i> 1 Hour Ago</p>
+                    </div>
                 </div>
-            </div>
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1620075267033-09d12ce47b4d?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>Spider-Man 4 Filming Starts Next Spring</h6>
-                    <p>Marvel Studios | 3 Hours Ago</p>
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1620075267033-09d12ce47b4d?q=80&w=600&auto=format&fit=crop" alt="Spider-Man News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Marvel</span>
+                        <h6>Spider-Man 4 Filming Starts Next Spring</h6>
+                        <p><i class="fa fa-clock-o"></i> 3 Hours Ago</p>
+                    </div>
                 </div>
-            </div>
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1588497859490-85d1c17db96d?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>The Boys Season 5 Release Date Confirmed</h6>
-                    <p>Amazon Prime | 5 Hours Ago</p>
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1588497859490-85d1c17db96d?q=80&w=600&auto=format&fit=crop" alt="The Boys News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Amazon Prime</span>
+                        <h6>The Boys Season 5 Release Date Confirmed</h6>
+                        <p><i class="fa fa-clock-o"></i> 5 Hours Ago</p>
+                    </div>
                 </div>
-            </div>
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1549416878-b9ca95e1bbcd?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>Image Comics Announces Massive Crossover Event</h6>
-                    <p>Comics | 12 Hours Ago</p>
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1549416878-b9ca95e1bbcd?q=80&w=600&auto=format&fit=crop" alt="Comics News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Comics</span>
+                        <h6>Image Comics Announces Massive Crossover Event</h6>
+                        <p><i class="fa fa-clock-o"></i> 12 Hours Ago</p>
+                    </div>
                 </div>
-            </div>
-            <div class="news-card-mini">
-                <img src="https://images.unsplash.com/photo-1612036782807-6c2e3998bb36?q=80&w=600&auto=format&fit=crop" alt="News">
-                <div class="card-body">
-                    <h6>Venom: The Last Dance Box Office Projections</h6>
-                    <p>Box Office | 1 Day Ago</p>
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1612036782807-6c2e3998bb36?q=80&w=600&auto=format&fit=crop" alt="Venom News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Box Office</span>
+                        <h6>Venom: The Last Dance Box Office Projections</h6>
+                        <p><i class="fa fa-clock-o"></i> 1 Day Ago</p>
+                    </div>
+                </div>
+                <div class="news-card-mini">
+                    <div class="card-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=600&auto=format&fit=crop" alt="Deadpool News">
+                    </div>
+                    <div class="card-body">
+                        <span class="news-badge">Marvel</span>
+                        <h6>Deadpool & Wolverine Breaks Opening Records</h6>
+                        <p><i class="fa fa-clock-o"></i> 2 Days Ago</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -595,4 +875,160 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // ============ Dynamic Web-Shooter Lines ============
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const canvas = document.getElementById('webCanvas');
+    if (!canvas) return;
+
+    function drawWebLines() {
+        // Clear previous lines
+        while (canvas.firstChild) canvas.removeChild(canvas.firstChild);
+
+        const section = document.querySelector('.spidey-news-section');
+        const origin = document.querySelector('.spidey-web-origin');
+        const cards = document.querySelectorAll('.news-horizontal-scroll .news-card-mini');
+        
+        if (!section || !origin || cards.length === 0) return;
+
+        const sectionRect = section.getBoundingClientRect();
+        const originRect = origin.getBoundingClientRect();
+        
+        // Origin point (Spidey's hand)
+        const ox = originRect.left + originRect.width / 2 - sectionRect.left;
+        const oy = originRect.top + originRect.height / 2 - sectionRect.top;
+
+        // Create SVG defs for gradient and glow filter
+        const defs = document.createElementNS(svgNS, 'defs');
+        
+        // Glow filter
+        const filter = document.createElementNS(svgNS, 'filter');
+        filter.setAttribute('id', 'webGlow');
+        filter.setAttribute('x', '-50%');
+        filter.setAttribute('y', '-50%');
+        filter.setAttribute('width', '200%');
+        filter.setAttribute('height', '200%');
+        const blur = document.createElementNS(svgNS, 'feGaussianBlur');
+        blur.setAttribute('stdDeviation', '3');
+        blur.setAttribute('result', 'coloredBlur');
+        filter.appendChild(blur);
+        const merge = document.createElementNS(svgNS, 'feMerge');
+        const mergeNode1 = document.createElementNS(svgNS, 'feMergeNode');
+        mergeNode1.setAttribute('in', 'coloredBlur');
+        const mergeNode2 = document.createElementNS(svgNS, 'feMergeNode');
+        mergeNode2.setAttribute('in', 'SourceGraphic');
+        merge.appendChild(mergeNode1);
+        merge.appendChild(mergeNode2);
+        filter.appendChild(merge);
+        defs.appendChild(filter);
+
+        // Gradient for each line
+        const colors = ['#ff2a4d', '#00e5ff', '#ff007a', '#8a2be2', '#00e5ff', '#ff2a4d'];
+        
+        cards.forEach((card, i) => {
+            if (i >= 6) return; // Only draw for visible unique cards
+            
+            const cardRect = card.getBoundingClientRect();
+            const cx = cardRect.left + cardRect.width / 2 - sectionRect.left;
+            const cy = cardRect.top + 10 - sectionRect.top;
+
+            // Create gradient for this line
+            const grad = document.createElementNS(svgNS, 'linearGradient');
+            grad.setAttribute('id', 'webGrad' + i);
+            grad.setAttribute('x1', cx < ox ? '0%' : '100%');
+            grad.setAttribute('y1', '0%');
+            grad.setAttribute('x2', cx < ox ? '100%' : '0%');
+            grad.setAttribute('y2', '100%');
+            const stop1 = document.createElementNS(svgNS, 'stop');
+            stop1.setAttribute('offset', '0%');
+            stop1.setAttribute('stop-color', 'rgba(255,255,255,0.1)');
+            const stop2 = document.createElementNS(svgNS, 'stop');
+            stop2.setAttribute('offset', '100%');
+            stop2.setAttribute('stop-color', colors[i % colors.length]);
+            stop2.setAttribute('stop-opacity', '0.6');
+            grad.appendChild(stop1);
+            grad.appendChild(stop2);
+            defs.appendChild(grad);
+
+            // Draw quadratic bezier curve from origin to card top
+            const midX = (ox + cx) / 2;
+            const midY = Math.min(oy, cy) - 30 - (i * 5);
+            
+            const path = document.createElementNS(svgNS, 'path');
+            path.setAttribute('d', `M ${ox} ${oy} Q ${midX} ${midY} ${cx} ${cy}`);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', `url(#webGrad${i})`);
+            path.setAttribute('stroke-width', '1.2');
+            path.setAttribute('stroke-dasharray', '8 4');
+            path.setAttribute('filter', 'url(#webGlow)');
+            path.setAttribute('opacity', '0.5');
+            
+            // Animate dash offset
+            const animate = document.createElementNS(svgNS, 'animate');
+            animate.setAttribute('attributeName', 'stroke-dashoffset');
+            animate.setAttribute('from', '0');
+            animate.setAttribute('to', '-24');
+            animate.setAttribute('dur', (2 + i * 0.3) + 's');
+            animate.setAttribute('repeatCount', 'indefinite');
+            path.appendChild(animate);
+            
+            canvas.appendChild(path);
+        });
+
+        canvas.insertBefore(defs, canvas.firstChild);
+
+        // Draw main web trunk line (thick glowing line from spidey down)
+        const mainLine = document.createElementNS(svgNS, 'line');
+        mainLine.setAttribute('x1', ox);
+        mainLine.setAttribute('y1', oy);
+        mainLine.setAttribute('x2', ox - 80);
+        mainLine.setAttribute('y2', oy + 30);
+        mainLine.setAttribute('stroke', 'rgba(255,255,255,0.15)');
+        mainLine.setAttribute('stroke-width', '2');
+        mainLine.setAttribute('filter', 'url(#webGlow)');
+        canvas.appendChild(mainLine);
+    }
+
+    // Initial draw after DOM is fully loaded
+    window.addEventListener('load', function() {
+        setTimeout(drawWebLines, 500);
+    });
+
+    // Redraw on resize
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(drawWebLines, 200);
+    });
+
+    // ============ Spider-Man Image Fallback ============
+    const spideyImg = document.querySelector('.spidey-hero-wrapper img');
+    if (spideyImg) {
+        // Use a reliable Spider-Man image - try multiple sources
+        const fallbackImages = [
+            'https://pngimg.com/uploads/spider_man/spider_man_PNG60.png',
+            'https://www.pngall.com/wp-content/uploads/2016/06/Spiderman-Free-Download-PNG.png',
+            'https://freepngimg.com/thumb/spider_man/22483-8-spiderman-hd.png'
+        ];
+        
+        let fallbackIndex = 0;
+        spideyImg.onerror = function() {
+            if (fallbackIndex < fallbackImages.length) {
+                this.src = fallbackImages[fallbackIndex++];
+            } else {
+                // Ultimate fallback: use the existing iron-man.png from the project
+                this.src = this.closest('[data-fallback]')?.dataset.fallback || '';
+                this.onerror = null;
+            }
+        };
+        
+        // Set the primary image source
+        spideyImg.src = 'https://pngimg.com/uploads/spider_man/spider_man_PNG60.png';
+    }
+})();
+</script>
 {% endblock %}
