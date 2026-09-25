@@ -254,7 +254,7 @@
         height: 380px;
         z-index: 15;
         filter: drop-shadow(0 0 25px rgba(255, 42, 77, 0.4)) drop-shadow(0 0 60px rgba(0, 229, 255, 0.15));
-        animation: spidey-float 4s ease-in-out infinite;
+        animation: spidey-float 4s ease-in-out infinite, spidey-pull 4s ease-in-out infinite 1.5s;
         pointer-events: none;
     }
     .spidey-hero-wrapper img {
@@ -269,23 +269,59 @@
         50% { transform: translateY(-12px) rotate(1deg); }
     }
 
-    /* Glowing energy pulse around Spidey's hand */
+    /* Spidey pull-back motion — subtle lean when pulling */
+    @keyframes spidey-pull {
+        0%, 100% { filter: drop-shadow(0 0 25px rgba(255, 42, 77, 0.4)) drop-shadow(0 0 60px rgba(0, 229, 255, 0.15)); }
+        50% { filter: drop-shadow(0 0 35px rgba(255, 42, 77, 0.6)) drop-shadow(0 0 80px rgba(0, 229, 255, 0.25)); }
+    }
+
+    /* Glowing energy pulse around Spidey's wrist */
     .spidey-web-origin {
         position: absolute;
-        right: 230px;
-        top: 40px;
+        right: 190px;
+        top: 28px;
         width: 20px;
         height: 20px;
         border-radius: 50%;
         background: radial-gradient(circle, #fff 0%, rgba(0, 229, 255, 0.8) 40%, transparent 70%);
         box-shadow: 0 0 20px #00e5ff, 0 0 40px rgba(0, 229, 255, 0.5), 0 0 80px rgba(255, 42, 77, 0.3);
-        animation: pulse-glow 2s ease-in-out infinite;
         z-index: 16;
         pointer-events: none;
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.4s ease;
+    }
+    .spidey-web-origin.active {
+        opacity: 1;
+        transform: scale(1);
+        animation: pulse-glow 2s ease-in-out infinite;
     }
     @keyframes pulse-glow {
         0%, 100% { transform: scale(1); opacity: 0.9; }
         50% { transform: scale(1.5); opacity: 1; }
+    }
+
+    /* THWIP wrist flash — burst effect on web shoot */
+    .wrist-flash {
+        position: absolute;
+        right: 180px;
+        top: 18px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(0, 229, 255, 0.8) 30%, rgba(255, 42, 77, 0.4) 60%, transparent 80%);
+        z-index: 17;
+        pointer-events: none;
+        opacity: 0;
+        transform: scale(0);
+    }
+    .wrist-flash.fire {
+        animation: wrist-burst 0.6s ease-out forwards;
+    }
+    @keyframes wrist-burst {
+        0% { transform: scale(0); opacity: 1; }
+        40% { transform: scale(3.5); opacity: 0.9; }
+        100% { transform: scale(5); opacity: 0; }
     }
 
     /* News Cards Horizontal Scroll */
@@ -303,14 +339,20 @@
         display: flex;
         gap: 25px;
         width: max-content;
-        animation: scroll-left 30s linear infinite;
+        /* Animation starts paused — JS triggers after web-shoot sequence */
+        animation: scroll-toward-spidey 30s linear infinite;
+        animation-play-state: paused;
+    }
+    .news-track.pulling {
+        animation-play-state: running;
     }
     .news-track:hover {
         animation-play-state: paused;
     }
-    @keyframes scroll-left {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
+    /* Reversed: cards move toward Spider-Man (right) */
+    @keyframes scroll-toward-spidey {
+        0% { transform: translateX(-50%); }
+        100% { transform: translateX(0); }
     }
 
     /* Extraordinary News Cards */
@@ -328,32 +370,20 @@
         z-index: 6;
         backdrop-filter: blur(10px);
         overflow: hidden;
+        /* Cards start invisible — phase 2 reveals them */
+        opacity: 0;
+        transform: translateX(-30px) scale(0.95);
+    }
+    .news-card-mini.revealed {
+        animation: card-appear 0.5s ease-out forwards;
+    }
+    @keyframes card-appear {
+        0% { opacity: 0; transform: translateX(-30px) scale(0.95); }
+        60% { opacity: 1; transform: translateX(5px) scale(1.01); }
+        100% { opacity: 1; transform: translateX(0) scale(1); }
     }
 
-    /* Glowing web thread from each card going up */
-    .news-card-mini::before {
-        content: '';
-        position: absolute;
-        top: -60px;
-        left: 50%;
-        width: 1.5px;
-        height: 60px;
-        background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.6), rgba(0, 229, 255, 0.4));
-        box-shadow: 0 0 6px rgba(0, 229, 255, 0.5);
-        z-index: -1;
-        animation: web-swing 3s ease-in-out infinite;
-        transform-origin: top center;
-    }
-    .news-card-mini:nth-child(1)::before { animation-delay: 0s; transform: rotate(-15deg); }
-    .news-card-mini:nth-child(2)::before { animation-delay: 0.3s; transform: rotate(-8deg); }
-    .news-card-mini:nth-child(3)::before { animation-delay: 0.6s; transform: rotate(5deg); }
-    .news-card-mini:nth-child(4)::before { animation-delay: 0.9s; transform: rotate(12deg); }
-    .news-card-mini:nth-child(5)::before { animation-delay: 1.2s; transform: rotate(18deg); }
-
-    @keyframes web-swing {
-        0%, 100% { transform: rotate(var(--swing-angle, -10deg)); }
-        50% { transform: rotate(calc(var(--swing-angle, -10deg) + 5deg)); }
-    }
+    /* Web thread pseudo-element removed — SVG lines handle web connections dynamically */
 
     /* Card glow border on hover */
     .news-card-mini::after {
@@ -489,8 +519,8 @@
             width: calc(100% - 160px);
         }
         .spidey-web-origin {
-            right: 148px;
-            top: 25px;
+            right: 120px;
+            top: 18px;
         }
     }
     @media (max-width: 768px) {
@@ -504,8 +534,8 @@
             width: calc(100% - 100px);
         }
         .spidey-web-origin {
-            right: 95px;
-            top: 18px;
+            right: 78px;
+            top: 12px;
             width: 14px;
             height: 14px;
         }
@@ -581,6 +611,8 @@
         </div>
         <!-- Web Origin Energy Pulse -->
         <div class="spidey-web-origin"></div>
+        <!-- THWIP Flash Burst -->
+        <div class="wrist-flash"></div>
 
         <!-- News Cards Marquee -->
         <div class="news-horizontal-scroll">
@@ -880,155 +912,300 @@
 {% block extra_js %}
 <script>
 (function() {
-    // ============ Dynamic Web-Shooter Lines ============
     const svgNS = 'http://www.w3.org/2000/svg';
     const canvas = document.getElementById('webCanvas');
     if (!canvas) return;
 
-    function drawWebLines() {
-        // Clear previous lines
-        while (canvas.firstChild) canvas.removeChild(canvas.firstChild);
-
-        const section = document.querySelector('.spidey-news-section');
-        const origin = document.querySelector('.spidey-web-origin');
-        const cards = document.querySelectorAll('.news-horizontal-scroll .news-card-mini');
-        
-        if (!section || !origin || cards.length === 0) return;
-
-        const sectionRect = section.getBoundingClientRect();
-        const originRect = origin.getBoundingClientRect();
-        
-        // Origin point (Spidey's hand)
-        const ox = originRect.left + originRect.width / 2 - sectionRect.left;
-        const oy = originRect.top + originRect.height / 2 - sectionRect.top;
-
-        // Create SVG defs for gradient and glow filter
-        const defs = document.createElementNS(svgNS, 'defs');
-        
-        // Glow filter
-        const filter = document.createElementNS(svgNS, 'filter');
-        filter.setAttribute('id', 'webGlow');
-        filter.setAttribute('x', '-50%');
-        filter.setAttribute('y', '-50%');
-        filter.setAttribute('width', '200%');
-        filter.setAttribute('height', '200%');
-        const blur = document.createElementNS(svgNS, 'feGaussianBlur');
-        blur.setAttribute('stdDeviation', '3');
-        blur.setAttribute('result', 'coloredBlur');
-        filter.appendChild(blur);
-        const merge = document.createElementNS(svgNS, 'feMerge');
-        const mergeNode1 = document.createElementNS(svgNS, 'feMergeNode');
-        mergeNode1.setAttribute('in', 'coloredBlur');
-        const mergeNode2 = document.createElementNS(svgNS, 'feMergeNode');
-        mergeNode2.setAttribute('in', 'SourceGraphic');
-        merge.appendChild(mergeNode1);
-        merge.appendChild(mergeNode2);
-        filter.appendChild(merge);
-        defs.appendChild(filter);
-
-        // Gradient for each line
-        const colors = ['#ff2a4d', '#00e5ff', '#ff007a', '#8a2be2', '#00e5ff', '#ff2a4d'];
-        
-        cards.forEach((card, i) => {
-            if (i >= 6) return; // Only draw for visible unique cards
-            
-            const cardRect = card.getBoundingClientRect();
-            const cx = cardRect.left + cardRect.width / 2 - sectionRect.left;
-            const cy = cardRect.top + 10 - sectionRect.top;
-
-            // Create gradient for this line
-            const grad = document.createElementNS(svgNS, 'linearGradient');
-            grad.setAttribute('id', 'webGrad' + i);
-            grad.setAttribute('x1', cx < ox ? '0%' : '100%');
-            grad.setAttribute('y1', '0%');
-            grad.setAttribute('x2', cx < ox ? '100%' : '0%');
-            grad.setAttribute('y2', '100%');
-            const stop1 = document.createElementNS(svgNS, 'stop');
-            stop1.setAttribute('offset', '0%');
-            stop1.setAttribute('stop-color', 'rgba(255,255,255,0.1)');
-            const stop2 = document.createElementNS(svgNS, 'stop');
-            stop2.setAttribute('offset', '100%');
-            stop2.setAttribute('stop-color', colors[i % colors.length]);
-            stop2.setAttribute('stop-opacity', '0.6');
-            grad.appendChild(stop1);
-            grad.appendChild(stop2);
-            defs.appendChild(grad);
-
-            // Draw quadratic bezier curve from origin to card top
-            const midX = (ox + cx) / 2;
-            const midY = Math.min(oy, cy) - 30 - (i * 5);
-            
-            const path = document.createElementNS(svgNS, 'path');
-            path.setAttribute('d', `M ${ox} ${oy} Q ${midX} ${midY} ${cx} ${cy}`);
-            path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', `url(#webGrad${i})`);
-            path.setAttribute('stroke-width', '1.2');
-            path.setAttribute('stroke-dasharray', '8 4');
-            path.setAttribute('filter', 'url(#webGlow)');
-            path.setAttribute('opacity', '0.5');
-            
-            // Animate dash offset
-            const animate = document.createElementNS(svgNS, 'animate');
-            animate.setAttribute('attributeName', 'stroke-dashoffset');
-            animate.setAttribute('from', '0');
-            animate.setAttribute('to', '-24');
-            animate.setAttribute('dur', (2 + i * 0.3) + 's');
-            animate.setAttribute('repeatCount', 'indefinite');
-            path.appendChild(animate);
-            
-            canvas.appendChild(path);
-        });
-
-        canvas.insertBefore(defs, canvas.firstChild);
-
-        // Draw main web trunk line (thick glowing line from spidey down)
-        const mainLine = document.createElementNS(svgNS, 'line');
-        mainLine.setAttribute('x1', ox);
-        mainLine.setAttribute('y1', oy);
-        mainLine.setAttribute('x2', ox - 80);
-        mainLine.setAttribute('y2', oy + 30);
-        mainLine.setAttribute('stroke', 'rgba(255,255,255,0.15)');
-        mainLine.setAttribute('stroke-width', '2');
-        mainLine.setAttribute('filter', 'url(#webGlow)');
-        canvas.appendChild(mainLine);
-    }
-
-    // Initial draw after DOM is fully loaded
-    window.addEventListener('load', function() {
-        setTimeout(drawWebLines, 500);
-    });
-
-    // Redraw on resize
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(drawWebLines, 200);
-    });
-
     // ============ Spider-Man Image Fallback ============
     const spideyImg = document.querySelector('.spidey-hero-wrapper img');
     if (spideyImg) {
-        // Use a reliable Spider-Man image - try multiple sources
         const fallbackImages = [
             'https://pngimg.com/uploads/spider_man/spider_man_PNG60.png',
             'https://www.pngall.com/wp-content/uploads/2016/06/Spiderman-Free-Download-PNG.png',
             'https://freepngimg.com/thumb/spider_man/22483-8-spiderman-hd.png'
         ];
-        
         let fallbackIndex = 0;
         spideyImg.onerror = function() {
             if (fallbackIndex < fallbackImages.length) {
                 this.src = fallbackImages[fallbackIndex++];
-            } else {
-                // Ultimate fallback: use the existing iron-man.png from the project
-                this.src = this.closest('[data-fallback]')?.dataset.fallback || '';
-                this.onerror = null;
-            }
+            } else { this.onerror = null; }
         };
-        
-        // Set the primary image source
         spideyImg.src = 'https://pngimg.com/uploads/spider_man/spider_man_PNG60.png';
     }
+
+    // ============ Core Elements ============
+    const section = document.querySelector('.spidey-news-section');
+    const origin = document.querySelector('.spidey-web-origin');
+    const wristFlash = document.querySelector('.wrist-flash');
+    const newsTrack = document.getElementById('newsTrack');
+    const scrollContainer = document.querySelector('.news-horizontal-scroll');
+    const cards = document.querySelectorAll('#newsTrack .news-card-mini');
+    
+    if (!section || !origin || !newsTrack || cards.length === 0) return;
+
+    let animationStarted = false;
+    let webLinesDrawn = false;
+    let defsCreated = false;
+
+    // ============ SVG Setup (once) ============
+    function ensureDefs() {
+        if (defsCreated) return;
+        defsCreated = true;
+        const defs = document.createElementNS(svgNS, 'defs');
+        
+        // Glow filter
+        const filter = document.createElementNS(svgNS, 'filter');
+        filter.setAttribute('id', 'webGlow');
+        filter.setAttribute('x', '-50%'); filter.setAttribute('y', '-50%');
+        filter.setAttribute('width', '200%'); filter.setAttribute('height', '200%');
+        const blur = document.createElementNS(svgNS, 'feGaussianBlur');
+        blur.setAttribute('stdDeviation', '2.5');
+        blur.setAttribute('result', 'coloredBlur');
+        filter.appendChild(blur);
+        const merge = document.createElementNS(svgNS, 'feMerge');
+        ['coloredBlur', 'SourceGraphic'].forEach(function(inp) {
+            const mn = document.createElementNS(svgNS, 'feMergeNode');
+            mn.setAttribute('in', inp);
+            merge.appendChild(mn);
+        });
+        filter.appendChild(merge);
+        defs.appendChild(filter);
+
+        // Shoot gradient
+        const shootGrad = document.createElementNS(svgNS, 'linearGradient');
+        shootGrad.setAttribute('id', 'shootGrad');
+        shootGrad.setAttribute('x1', '100%'); shootGrad.setAttribute('y1', '0%');
+        shootGrad.setAttribute('x2', '0%'); shootGrad.setAttribute('y2', '0%');
+        const ss1 = document.createElementNS(svgNS, 'stop');
+        ss1.setAttribute('offset', '0%'); ss1.setAttribute('stop-color', '#fff');
+        const ss2 = document.createElementNS(svgNS, 'stop');
+        ss2.setAttribute('offset', '100%'); ss2.setAttribute('stop-color', '#00e5ff');
+        ss2.setAttribute('stop-opacity', '0.3');
+        shootGrad.appendChild(ss1); shootGrad.appendChild(ss2);
+        defs.appendChild(shootGrad);
+
+        // Web line gradients
+        var colors = ['#ff2a4d', '#00e5ff', '#ff007a', '#8a2be2', '#00e5ff', '#ff2a4d'];
+        colors.forEach(function(c, i) {
+            const grad = document.createElementNS(svgNS, 'linearGradient');
+            grad.setAttribute('id', 'webGrad' + i);
+            grad.setAttribute('x1', '0%'); grad.setAttribute('y1', '0%');
+            grad.setAttribute('x2', '100%'); grad.setAttribute('y2', '100%');
+            const st1 = document.createElementNS(svgNS, 'stop');
+            st1.setAttribute('offset', '0%'); st1.setAttribute('stop-color', 'rgba(255,255,255,0.2)');
+            const st2 = document.createElementNS(svgNS, 'stop');
+            st2.setAttribute('offset', '100%'); st2.setAttribute('stop-color', c);
+            st2.setAttribute('stop-opacity', '0.65');
+            grad.appendChild(st1); grad.appendChild(st2);
+            defs.appendChild(grad);
+        });
+        canvas.appendChild(defs);
+    }
+
+    function getOriginPoint() {
+        var sR = section.getBoundingClientRect();
+        var oR = origin.getBoundingClientRect();
+        return {
+            x: oR.left + oR.width / 2 - sR.left,
+            y: oR.top + oR.height / 2 - sR.top
+        };
+    }
+
+    // ============ PHASE 1: Web Shoot ============
+    function phase1_webShoot() {
+        ensureDefs();
+        var o = getOriginPoint();
+
+        // THWIP flash
+        if (wristFlash) wristFlash.classList.add('fire');
+        // Activate wrist glow
+        origin.classList.add('active');
+
+        // Curved shoot line from wrist to left edge
+        var shootPath = document.createElementNS(svgNS, 'path');
+        var endX = 0;
+        var endY = o.y + 60;
+        var cpX = o.x * 0.4;
+        var cpY = o.y - 20;
+        shootPath.setAttribute('d', 'M ' + o.x + ' ' + o.y + ' Q ' + cpX + ' ' + cpY + ' ' + endX + ' ' + endY);
+        shootPath.setAttribute('fill', 'none');
+        shootPath.setAttribute('stroke', 'url(#shootGrad)');
+        shootPath.setAttribute('stroke-width', '2');
+        shootPath.setAttribute('filter', 'url(#webGlow)');
+        shootPath.setAttribute('id', 'shootLine');
+        canvas.appendChild(shootPath);
+
+        // Measure path length for dash animation
+        var pathLen = shootPath.getTotalLength();
+        shootPath.setAttribute('stroke-dasharray', pathLen);
+        shootPath.setAttribute('stroke-dashoffset', pathLen);
+
+        // Animate draw-on with easing
+        var anim = document.createElementNS(svgNS, 'animate');
+        anim.setAttribute('attributeName', 'stroke-dashoffset');
+        anim.setAttribute('from', pathLen);
+        anim.setAttribute('to', '0');
+        anim.setAttribute('dur', '0.5s');
+        anim.setAttribute('fill', 'freeze');
+        anim.setAttribute('calcMode', 'spline');
+        anim.setAttribute('keySplines', '0.25 0.1 0.25 1');
+        shootPath.appendChild(anim);
+
+        // Phase 2 after shoot completes
+        setTimeout(phase2_connect, 700);
+    }
+
+    // ============ PHASE 2: Cards Appear + Web Lines Connect ============
+    function phase2_connect() {
+        // Fade shoot line
+        var shootLine = document.getElementById('shootLine');
+        if (shootLine) {
+            shootLine.setAttribute('opacity', '0.15');
+            setTimeout(function() { if (shootLine.parentNode) shootLine.remove(); }, 400);
+        }
+
+        // Reveal cards one by one with web line per card
+        var uniqueCount = Math.min(cards.length, 6);
+        cards.forEach(function(card, i) {
+            setTimeout(function() {
+                card.classList.add('revealed');
+                // Draw web line to this card as it appears
+                if (i < uniqueCount) {
+                    drawSingleWebLine(i, card);
+                }
+            }, i * 100);
+        });
+
+        // After all cards revealed start Phase 3
+        setTimeout(function() {
+            webLinesDrawn = true;
+            phase3_pull();
+        }, cards.length * 100 + 300);
+    }
+
+    // ============ Draw a single web line from wrist to a card ============
+    function drawSingleWebLine(index, card) {
+        var o = getOriginPoint();
+        var sR = section.getBoundingClientRect();
+        var cR = card.getBoundingClientRect();
+        var cx = cR.left + cR.width / 2 - sR.left;
+        var cy = cR.top + 8 - sR.top;
+        var midX = (o.x + cx) / 2;
+        var midY = Math.min(o.y, cy) - 20 - (index * 5);
+
+        var path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('class', 'web-line');
+        path.setAttribute('data-index', index);
+        path.setAttribute('d', 'M ' + o.x + ' ' + o.y + ' Q ' + midX + ' ' + midY + ' ' + cx + ' ' + cy);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', 'url(#webGrad' + (index % 6) + ')');
+        path.setAttribute('stroke-width', '1.2');
+        path.setAttribute('stroke-dasharray', '8 4');
+        path.setAttribute('filter', 'url(#webGlow)');
+        path.setAttribute('opacity', '0');
+
+        // Animated dash flow toward Spidey
+        var anim = document.createElementNS(svgNS, 'animate');
+        anim.setAttribute('attributeName', 'stroke-dashoffset');
+        anim.setAttribute('from', '24');
+        anim.setAttribute('to', '0');
+        anim.setAttribute('dur', (1.5 + index * 0.15) + 's');
+        anim.setAttribute('repeatCount', 'indefinite');
+        path.appendChild(anim);
+        canvas.appendChild(path);
+
+        // Smooth fade in
+        requestAnimationFrame(function() {
+            path.setAttribute('opacity', '0.55');
+        });
+    }
+
+    // ============ PHASE 3: Start the Pull ============
+    function phase3_pull() {
+        newsTrack.classList.add('pulling');
+        startWebLineUpdates();
+    }
+
+    // ============ Update web lines during scroll (throttled ~20fps) ============
+    var rafId;
+    var lastUpdateTime = 0;
+    var UPDATE_INTERVAL = 50;
+
+    function updateWebLinePositions() {
+        var now = performance.now();
+        if (now - lastUpdateTime < UPDATE_INTERVAL) {
+            rafId = requestAnimationFrame(updateWebLinePositions);
+            return;
+        }
+        lastUpdateTime = now;
+
+        var o = getOriginPoint();
+        var sR = section.getBoundingClientRect();
+        var scrollRect = scrollContainer ? scrollContainer.getBoundingClientRect() : sR;
+
+        for (var i = 0; i < Math.min(cards.length, 6); i++) {
+            var card = cards[i];
+            var cR = card.getBoundingClientRect();
+            var cx = cR.left + cR.width / 2 - sR.left;
+            var cy = cR.top + 8 - sR.top;
+            var isVisible = cR.right > scrollRect.left && cR.left < scrollRect.right;
+            var line = canvas.querySelector('.web-line[data-index="' + i + '"]');
+
+            if (line) {
+                if (isVisible) {
+                    var midX = (o.x + cx) / 2;
+                    var midY = Math.min(o.y, cy) - 20 - (i * 5);
+                    line.setAttribute('d', 'M ' + o.x + ' ' + o.y + ' Q ' + midX + ' ' + midY + ' ' + cx + ' ' + cy);
+                    line.setAttribute('opacity', '0.55');
+                } else {
+                    line.setAttribute('opacity', '0');
+                }
+            }
+        }
+        rafId = requestAnimationFrame(updateWebLinePositions);
+    }
+
+    function startWebLineUpdates() {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(updateWebLinePositions);
+    }
+
+    // ============ Trigger on scroll into view ============
+    function startAnimation() {
+        if (animationStarted) return;
+        animationStarted = true;
+        setTimeout(phase1_webShoot, 300);
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                startAnimation();
+                observer.disconnect();
+            }
+        });
+    }, { threshold: 0.15 });
+
+    window.addEventListener('load', function() { observer.observe(section); });
+
+    // Resize
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (webLinesDrawn) {
+                canvas.querySelectorAll('.web-line').forEach(function(p) { p.remove(); });
+                for (var i = 0; i < Math.min(cards.length, 6); i++) {
+                    drawSingleWebLine(i, cards[i]);
+                }
+            }
+        }, 250);
+    });
+
+    // Cleanup
+    window.addEventListener('beforeunload', function() {
+        if (rafId) cancelAnimationFrame(rafId);
+    });
 })();
 </script>
 {% endblock %}
